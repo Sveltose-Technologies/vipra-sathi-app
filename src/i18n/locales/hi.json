@@ -1,0 +1,60 @@
+{
+  "welcome": "वापसी पर स्वागत है",
+  "login_subtitle": "जारी रखने के लिए विप्रजी में लॉग इन करें",
+  "email": "ईमेल पता",
+  "password": "पासवर्ड",
+  "login": "लॉग इन करें",
+  "search": "सब कुछ खोजें",
+  "search_placeholder": "आरती, मंत्र, पूजा खोजें...",
+  "favorites": "पसंदीदा",
+  "tabs": {
+    "home": "होम",
+    "library": "पुस्तकालय",
+    "pooja": "पूजा",
+    "calendar": "पंचांग",
+    "dakshina": "दक्षिणा",
+    "menu": "मेनू"
+  },
+  "menu": {
+    "profile": "प्रोफ़ाइल और ब्रांडिंग",
+    "community": "समुदाय",
+    "subscription": "सदस्यता और वॉलेट",
+    "history": "कार्य इतिहास",
+    "help": "सहायता केंद्र",
+    "settings": "सेटिंग्स",
+    "title": "मेनू"
+  },
+  "home": {
+    "spiritual_card": "दैनिक आध्यात्मिक कार्ड",
+    "core_workflows": "मुख्य कार्यप्रवाह",
+    "todays_bookings": "आज की बुकिंग",
+    "todays_tasks": "आज के कार्य",
+    "community_discussions": "सामुदायिक चर्चाएँ"
+  },
+  "calendar": {
+    "monthly_summary": "मासिक सारांश",
+    "agenda_for": "के लिए एजेंडा"
+  },
+  "dakshina_calc": {
+    "title": "दक्षिणा कैलकुलेटर",
+    "subtitle": "आचार्य, पंडित और अतिरिक्त खर्चों सहित अपनी पूजा दक्षिणा की आसानी से गणना करें।",
+    "days": "कुल पूजा के दिन",
+    "days_placeholder": "उदा., 3",
+    "acharya_amt": "आचार्य प्रतिदिन राशि",
+    "acharya_placeholder": "उदा., 2100",
+    "pandit_amt": "पंडित प्रतिदिन राशि",
+    "pandit_placeholder": "उदा., 1100",
+    "samagri_amt": "सामग्री राशि",
+    "samagri_placeholder": "उदा., 5000",
+    "transport_amt": "परिवहन राशि",
+    "transport_placeholder": "उदा., 1000",
+    "optional": "वैकल्पिक",
+    "summary": "गणना सारांश",
+    "acharya_total": "आचार्य कुल (दिन × राशि)",
+    "pandit_total": "पंडित कुल (दिन × राशि)",
+    "pooja_final": "पूजा अंतिम राशि",
+    "samagri": "सामग्री",
+    "transportation": "परिवहन",
+    "grand_total": "कुल योग"
+  }
+}

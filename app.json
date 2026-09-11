@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Vipra Sathi",
+    "slug": "viprasathi",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.viprasathi.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.viprasathi.app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3352aa5c-c7d4-4b31-9260-8f027b226b27"
+      }
+    },
+    "owner": "varunjain123"
+  },
+  "name": "VipraSathi",
+  "displayName": "Vipra Sathi"
+}
