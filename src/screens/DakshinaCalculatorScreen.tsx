@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, Share } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Feather as Icon } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -43,6 +43,13 @@ const DakshinaCalculatorScreen = () => {
   const panditTotal = A * C;
   const finalAmount = acharyaTotal + panditTotal;
   const totalAmount = finalAmount + D + E;
+
+  const handleShare = async () => {
+    const msg = `Dakshina Calculation${poojaName ? '\nPooja: ' + poojaName : ''}\n\nTotal Days: ${calculatedDays}\nAcharya/Day: ₹${B}\nPandit/Day: ₹${C}\n\nAcharya Total: ₹${acharyaTotal.toFixed(2)}\nPandit Total: ₹${panditTotal.toFixed(2)}\nPooja Final: ₹${finalAmount.toFixed(2)}${D > 0 ? '\nSamagri: ₹' + D.toFixed(2) : ''}${E > 0 ? '\nTransport: ₹' + E.toFixed(2) : ''}\n\nGrand Total: ₹${totalAmount.toFixed(2)}\n\n- Vipra Saarthi`;
+    try {
+      await Share.share({ message: msg, title: 'Dakshina Calculation' });
+    } catch {}
+  };
 
   const handleDateConfirm = (date: Date) => {
     const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -179,6 +186,9 @@ const DakshinaCalculatorScreen = () => {
             <View style={styles.resultHeader}>
               <Icon name="file-text" size={20} color="#FFF" />
               <Text style={styles.resultTitle}>{t('dakshina_calc.summary', 'Calculation Summary')}</Text>
+              <TouchableOpacity onPress={handleShare} style={styles.shareBtn}>
+                <Icon name="share-2" size={18} color="#FFF" />
+              </TouchableOpacity>
             </View>
 
             {poojaName ? (
@@ -272,7 +282,15 @@ const styles = StyleSheet.create({
 
   resultCard: { borderRadius: 12, padding: 16, marginTop: 10, elevation: 4, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6 },
   resultHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  resultTitle: { color: '#FFF', fontSize: 15, fontWeight: 'bold', marginLeft: 8 },
+  resultTitle: { color: '#FFF', fontSize: 15, fontWeight: 'bold', marginLeft: 8, flex: 1 },
+  shareBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   poojaNameTitle: { color: '#FFF', fontSize: 18, fontWeight: 'bold', marginBottom: 12, textAlign: 'center' },
   resultRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
   resultRowHighlight: { marginTop: 4, marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.2)' },

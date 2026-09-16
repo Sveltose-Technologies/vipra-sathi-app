@@ -2,6 +2,7 @@ package com.viprasathi.app
 
 import android.app.Application
 import android.content.res.Configuration
+import com.viprasathi.app.BuildConfig
 
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication

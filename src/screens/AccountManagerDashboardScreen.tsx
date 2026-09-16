@@ -41,10 +41,10 @@ const AccountManagerDashboardScreen = () => {
   };
 
   const quickEntries = [
-    { title: 'Dakshina', icon: 'dollar-sign', color: '#10b981', type: 'earning', category: 'Dakshina' },
-    { title: 'Other Income', icon: 'plus-circle', color: '#3b82f6', type: 'earning', category: 'Other Income' },
-    { title: 'Travel', icon: 'navigation', color: '#ef4444', type: 'expense', category: 'Travel' },
-    { title: 'Samagri Expense', icon: 'shopping-cart', color: '#f59e0b', type: 'expense', category: 'Samagri' },
+    { title: 'Dakshina', icon: 'dollar-sign', color: colors.earning, type: 'earning', category: 'Dakshina' },
+    { title: 'Other Income', icon: 'plus-circle', color: colors.primary, type: 'earning', category: 'Other Income' },
+    { title: 'Travel', icon: 'navigation', color: colors.expense, type: 'expense', category: 'Travel' },
+    { title: 'Samagri Expense', icon: 'shopping-cart', color: colors.secondary, type: 'expense', category: 'Samagri' },
   ];
 
   return (
@@ -59,12 +59,12 @@ const AccountManagerDashboardScreen = () => {
           <View style={styles.summaryRow}>
             <View style={styles.summaryItem}>
               <Text style={[styles.summaryLabel, { color: colors.textLight }]}>{t('accountManager.aaya', 'Aaya (Income)')}</Text>
-              <Text style={[styles.summaryAmount, { color: '#10b981' }]}>₹{dashboardData.monthlyTotal.aaya.toLocaleString()}</Text>
+              <Text style={[styles.summaryAmount, { color: colors.earning }]}>₹{dashboardData.monthlyTotal.aaya.toLocaleString()}</Text>
             </View>
             <View style={styles.summaryDivider} />
             <View style={styles.summaryItem}>
               <Text style={[styles.summaryLabel, { color: colors.textLight }]}>{t('accountManager.kharcha', 'Kharcha (Expense)')}</Text>
-              <Text style={[styles.summaryAmount, { color: '#ef4444' }]}>₹{dashboardData.monthlyTotal.kharcha.toLocaleString()}</Text>
+              <Text style={[styles.summaryAmount, { color: colors.expense }]}>₹{dashboardData.monthlyTotal.kharcha.toLocaleString()}</Text>
             </View>
           </View>
 
@@ -102,7 +102,7 @@ const AccountManagerDashboardScreen = () => {
             {dashboardData.sourceWise.map((item, index) => (
               <View key={item.id} style={[styles.sourceItem, index < dashboardData.sourceWise.length - 1 && { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
                 <Text style={[styles.sourceName, { color: colors.text }]}>{item.source}</Text>
-                <Text style={[styles.sourceAmount, { color: item.type === 'income' ? '#10b981' : '#ef4444' }]}>
+                <Text style={[styles.sourceAmount, { color: item.type === 'income' ? colors.earning : colors.expense }]}>
                   {item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}
                 </Text>
               </View>
@@ -115,7 +115,7 @@ const AccountManagerDashboardScreen = () => {
       {/* Primary Floating Action Buttons (Optional but helpful) */}
       <View style={[styles.bottomActions, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 16) }]}>
         <TouchableOpacity
-          style={[styles.actionBtn, { backgroundColor: '#10b981' }]}
+          style={[styles.actionBtn, { backgroundColor: colors.earning }]}
           onPress={() => navigateToEntry('earning')}
         >
           <Icon name="arrow-down-left" size={20} color="#FFF" style={styles.actionIcon} />
@@ -123,7 +123,7 @@ const AccountManagerDashboardScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.actionBtn, { backgroundColor: '#ef4444' }]}
+          style={[styles.actionBtn, { backgroundColor: colors.expense }]}
           onPress={() => navigateToEntry('expense')}
         >
           <Icon name="arrow-up-right" size={20} color="#FFF" style={styles.actionIcon} />

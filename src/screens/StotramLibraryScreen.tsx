@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -7,56 +7,37 @@ import { useTheme } from '../theme/ThemeContext';
 import { STOTRAM_CATEGORIES, MOCK_STOTRAS } from '../data/mockLibrary';
 import { Feather as Icon } from '@expo/vector-icons';
 import CustomHeader from '../components/CustomHeader';
+import CustomDropdown from '../components/CustomDropdown';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const StotramLibraryScreen = () => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  const filteredStotras = selectedCategory === 'All' 
-    ? MOCK_STOTRAS 
+  const filteredStotras = selectedCategory === 'All'
+    ? MOCK_STOTRAS
     : MOCK_STOTRAS.filter(s => s.category === selectedCategory);
-
-  const renderCategoryPill = (category: string) => {
-    const isSelected = selectedCategory === category;
-    return (
-      <TouchableOpacity
-        key={category}
-        style={[
-          styles.categoryPill,
-          { 
-            backgroundColor: isSelected ? colors.primary : (isDark ? colors.surface : '#f0f0f0'),
-            borderColor: isSelected ? colors.primary : colors.border
-          }
-        ]}
-        onPress={() => setSelectedCategory(category)}
-      >
-        <Text style={[
-          styles.categoryText,
-          { color: isSelected ? '#FFFFFF' : colors.text }
-        ]}>
-          {category}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
 
   const renderStotramCard = ({ item }: { item: typeof MOCK_STOTRAS[0] }) => (
     <TouchableOpacity
       style={[styles.stotramCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
       onPress={() => navigation.navigate('StotramDetail', { stotramId: item.id })}
+      activeOpacity={0.7}
     >
-      <View style={styles.cardContent}>
-        <View style={[styles.iconContainer, { backgroundColor: colors.primary + '15' }]}>
-          <Icon name="music" size={20} color={colors.primary} />
+      <View style={[styles.cardAccent, { backgroundColor: colors.primary }]} />
+      <View style={styles.cardBody}>
+        <View style={[styles.iconContainer, { backgroundColor: colors.primary + '12' }]}>
+          <Icon name="headphones" size={20} color={colors.primary} />
         </View>
         <View style={styles.textContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>{item.title}</Text>
           <Text style={[styles.category, { color: colors.textLight }]}>{item.category}</Text>
         </View>
-        <Icon name="play-circle" size={24} color={colors.secondary} />
+        <View style={[styles.playBadge, { backgroundColor: colors.primary + '12' }]}>
+          <Icon name="play" size={16} color={colors.primary} />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -65,14 +46,22 @@ const StotramLibraryScreen = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CustomHeader title="Stotram Library" showBack={true} />
 
-      <View style={styles.categoriesContainer}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesScroll}
-        >
-          {STOTRAM_CATEGORIES.map(renderCategoryPill)}
-        </ScrollView>
+      {/* Category Dropdown */}
+      <View style={styles.dropdownRow}>
+        <View style={styles.dropdownWrapper}>
+          <CustomDropdown
+            value={selectedCategory}
+            options={STOTRAM_CATEGORIES}
+            onSelect={setSelectedCategory}
+            placeholder="Select Category"
+          />
+        </View>
+      </View>
+
+      <View style={styles.countRow}>
+        <Text style={[styles.countText, { color: colors.textLight }]}>
+          {filteredStotras.length} stotras
+        </Text>
       </View>
 
       <FlatList
@@ -83,6 +72,7 @@ const StotramLibraryScreen = () => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
+            <Icon name="music" size={48} color={colors.border} />
             <Text style={[styles.emptyText, { color: colors.textLight }]}>
               No stotras found in this category.
             </Text>
@@ -95,42 +85,62 @@ const StotramLibraryScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  categoriesContainer: { marginBottom: 12 },
-  categoriesScroll: { paddingHorizontal: 16, paddingBottom: 8 },
-  categoryPill: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 24,
-    marginRight: 10,
-    borderWidth: 1,
+  dropdownRow: {
+    paddingHorizontal: 16,
+    marginBottom: 8,
   },
-  categoryText: { fontSize: 15, fontWeight: '600' },
+  dropdownWrapper: {
+    // no extra margin needed, CustomDropdown handles it
+  },
+  countRow: {
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  countText: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
   listContainer: { padding: 16, paddingBottom: 30 },
   stotramCard: {
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
-    padding: 16,
     marginBottom: 12,
-    elevation: 1,
+    overflow: 'hidden',
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
   },
-  cardContent: { flexDirection: 'row', alignItems: 'center' },
+  cardAccent: {
+    height: 3,
+    width: '100%',
+  },
+  cardBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 14,
   },
   textContainer: { flex: 1 },
-  title: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
-  category: { fontSize: 14 },
-  emptyContainer: { padding: 32, alignItems: 'center' },
-  emptyText: { fontSize: 16 }
+  title: { fontSize: 16, fontWeight: '700', marginBottom: 3 },
+  category: { fontSize: 13, fontWeight: '500' },
+  playBadge: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContainer: { padding: 40, alignItems: 'center', gap: 12 },
+  emptyText: { fontSize: 15, fontWeight: '500' },
 });
 
 export default StotramLibraryScreen;

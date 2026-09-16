@@ -6,10 +6,21 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../theme/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Feather as Icon } from '@expo/vector-icons';
+import CustomDropdown from '../components/CustomDropdown';
 
 type ExpenseEntryRouteProp = RouteProp<RootStackParamList, 'ExpenseEntry'>;
 
-const EXPENSE_CATEGORIES = ['Travel', 'Samagri', 'Food', 'Other Expense'];
+const EXPENSE_CATEGORIES = [
+  'Travel',
+  'Samagri',
+  'Food',
+  'Puja Materials',
+  'Transport',
+  'Donation',
+  'Office Supplies',
+  'Miscellaneous',
+  'Other Expense',
+];
 
 const ExpenseEntryScreen = () => {
   const { colors } = useTheme();
@@ -41,7 +52,6 @@ const ExpenseEntryScreen = () => {
     }
 
     setIsSubmitting(true);
-    // TODO: Connect to backend or store
     setTimeout(() => {
       setIsSubmitting(false);
       navigation.goBack();
@@ -91,9 +101,9 @@ const ExpenseEntryScreen = () => {
       behavior="padding"
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#ef4444" translucent={true} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.expense} translucent={true} />
       
-      <View style={[styles.header, { backgroundColor: '#ef4444', paddingTop: Math.max(insets.top, 14) }]}>
+      <View style={[styles.header, { backgroundColor: colors.expense, paddingTop: Math.max(insets.top, 14) }]}>
         <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.goBack()}>
           <Icon name="x" size={24} color="#FFF" />
         </TouchableOpacity>
@@ -109,26 +119,12 @@ const ExpenseEntryScreen = () => {
           {renderInput('amount', t('accountManager.amount', 'Amount'), '0.00', { keyboardType: 'numeric', prefix: '₹' })}
           {renderInput('source', t('accountManager.sourceOfExpense', 'Source of Expense'), 'e.g. Travel, Vendor, Shop')}
           
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>{t('accountManager.category', 'Category')}</Text>
-            <View style={styles.categoryWrap}>
-              {EXPENSE_CATEGORIES.map(cat => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[
-                    styles.categoryChip,
-                    {
-                      backgroundColor: formData.category === cat ? '#ef4444' : colors.surface,
-                      borderColor: formData.category === cat ? '#ef4444' : colors.border
-                    }
-                  ]}
-                  onPress={() => setFormData({ ...formData, category: cat })}
-                >
-                  <Text style={{ color: formData.category === cat ? '#FFF' : colors.text, fontSize: 13, fontWeight: '500' }}>{cat}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+          <CustomDropdown
+            label={t('accountManager.category', 'Category')}
+            value={formData.category}
+            options={EXPENSE_CATEGORIES}
+            onSelect={(val) => setFormData({ ...formData, category: val })}
+          />
 
           {renderInput('remark', t('accountManager.remark', 'Remark'), 'Add any notes (optional)', { multiline: true })}
         </View>
@@ -137,7 +133,7 @@ const ExpenseEntryScreen = () => {
 
       <View style={[styles.bottomActions, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 16) }]}>
         <TouchableOpacity
-          style={[styles.saveBtn, { backgroundColor: '#ef4444' }]}
+          style={[styles.saveBtn, { backgroundColor: colors.expense }]}
           onPress={handleSave}
           disabled={isSubmitting}
         >
@@ -225,17 +221,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
-  },
-  categoryWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  categoryChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
   },
   bottomActions: {
     padding: 16,

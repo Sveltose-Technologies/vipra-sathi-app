@@ -9,4 +9,6 @@ export interface CalendarEvent {
   type: EventType;
   status: EventStatus;
   description?: string;
+  yajmanName?: string;
+  yajmanPhone?: string;
 }

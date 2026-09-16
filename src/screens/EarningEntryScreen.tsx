@@ -6,10 +6,22 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../theme/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Feather as Icon } from '@expo/vector-icons';
+import CustomDropdown from '../components/CustomDropdown';
 
 type EarningEntryRouteProp = RouteProp<RootStackParamList, 'EarningEntry'>;
 
-const EARNING_CATEGORIES = ['Dakshina', 'Karmkand', 'Astrology', 'Other Income'];
+const EARNING_CATEGORIES = [
+  'Dakshina',
+  'Karmkand',
+  'Astrology',
+  'Puja Path',
+  'Jyotish Consultation',
+  'Vastu Consulting',
+  'Hastarekha',
+  'Numerology',
+  'Tarot Reading',
+  'Other Income',
+];
 
 const EarningEntryScreen = () => {
   const { colors } = useTheme();
@@ -41,7 +53,6 @@ const EarningEntryScreen = () => {
     }
 
     setIsSubmitting(true);
-    // TODO: Connect to backend or store
     setTimeout(() => {
       setIsSubmitting(false);
       navigation.goBack();
@@ -91,9 +102,9 @@ const EarningEntryScreen = () => {
       behavior="padding"
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#10b981" translucent={true} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.earning} translucent={true} />
       
-      <View style={[styles.header, { backgroundColor: '#10b981', paddingTop: Math.max(insets.top, 14) }]}>
+      <View style={[styles.header, { backgroundColor: colors.earning, paddingTop: Math.max(insets.top, 14) }]}>
         <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.goBack()}>
           <Icon name="x" size={24} color="#FFF" />
         </TouchableOpacity>
@@ -109,26 +120,12 @@ const EarningEntryScreen = () => {
           {renderInput('amount', t('accountManager.amount', 'Amount'), '0.00', { keyboardType: 'numeric', prefix: '₹' })}
           {renderInput('source', t('accountManager.sourceOfReceiving', 'Source of Receiving'), 'e.g. Yajman Name or Event')}
           
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>{t('accountManager.category', 'Category')}</Text>
-            <View style={styles.categoryWrap}>
-              {EARNING_CATEGORIES.map(cat => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[
-                    styles.categoryChip,
-                    {
-                      backgroundColor: formData.category === cat ? '#10b981' : colors.surface,
-                      borderColor: formData.category === cat ? '#10b981' : colors.border
-                    }
-                  ]}
-                  onPress={() => setFormData({ ...formData, category: cat })}
-                >
-                  <Text style={{ color: formData.category === cat ? '#FFF' : colors.text, fontSize: 13, fontWeight: '500' }}>{cat}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+          <CustomDropdown
+            label={t('accountManager.category', 'Category')}
+            value={formData.category}
+            options={EARNING_CATEGORIES}
+            onSelect={(val) => setFormData({ ...formData, category: val })}
+          />
 
           {renderInput('remark', t('accountManager.remark', 'Remark'), 'Add any notes (optional)', { multiline: true })}
         </View>
@@ -137,7 +134,7 @@ const EarningEntryScreen = () => {
 
       <View style={[styles.bottomActions, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 16) }]}>
         <TouchableOpacity
-          style={[styles.saveBtn, { backgroundColor: '#10b981' }]}
+          style={[styles.saveBtn, { backgroundColor: colors.earning }]}
           onPress={handleSave}
           disabled={isSubmitting}
         >
@@ -225,17 +222,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
-  },
-  categoryWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  categoryChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
   },
   bottomActions: {
     padding: 16,

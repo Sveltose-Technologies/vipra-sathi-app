@@ -9,10 +9,11 @@ import { useTheme } from '../theme/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useYajmans } from '../hooks/useYajmans';
 import { YajmanCategory } from '../types/yajman';
+import CustomDropdown from '../components/CustomDropdown';
 
 type FormRouteProp = RouteProp<RootStackParamList, 'YajmanForm'>;
 
-const CATEGORIES: YajmanCategory[] = ['Astrology', 'Karmkand', 'Vaastu', 'Hastrekha', 'Others'];
+const CATEGORIES: YajmanCategory[] = ['Astrology', 'Karmkand', 'Vaastu', 'Hastrekha', 'Others', 'Puja Path', 'Jyotish', 'Vastu Consulting', 'Hastarekha', 'Numerology', 'Tarot', 'Other'];
 
 const YajmanFormScreen = () => {
   const { colors, isDark } = useTheme();
@@ -159,26 +160,12 @@ const YajmanFormScreen = () => {
           <Text style={[styles.sectionTitle, { color: colors.primary }]}>Personal Details</Text>
           {renderInput('name', 'Full Name', 'Enter yajman name')}
 
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Category</Text>
-            <View style={styles.categoryWrap}>
-              {CATEGORIES.map(cat => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[
-                    styles.categoryChip,
-                    {
-                      backgroundColor: formData.category === cat ? colors.primary : colors.surface,
-                      borderColor: formData.category === cat ? colors.primary : colors.border
-                    }
-                  ]}
-                  onPress={() => setFormData({ ...formData, category: cat })}
-                >
-                  <Text style={{ color: formData.category === cat ? '#FFF' : colors.text, fontSize: 13 }}>{cat}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+          <CustomDropdown
+            label="Category"
+            value={formData.category}
+            options={CATEGORIES}
+            onSelect={(val) => setFormData({ ...formData, category: val as YajmanCategory })}
+          />
         </View>
 
         {/* Contact Info */}

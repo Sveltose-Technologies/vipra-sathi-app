@@ -12,12 +12,10 @@ const SubscriptionReminderModal = () => {
   const { isGuest } = useAuth();
   const navigation = useNavigation<any>();
 
-  // Assuming user has no subscription for now to show the modal
   const hasSubscription = false;
 
   useEffect(() => {
     if (hasSubscription) return;
-
     const interval = setInterval(() => {
       setIsVisible(true);
       Animated.spring(scaleAnim, {
@@ -26,8 +24,7 @@ const SubscriptionReminderModal = () => {
         friction: 7,
         useNativeDriver: true,
       }).start();
-    }, 200000); // 20 seconds
-
+    }, 200000);
     return () => clearInterval(interval);
   }, [hasSubscription, scaleAnim]);
 
@@ -50,21 +47,46 @@ const SubscriptionReminderModal = () => {
     <Modal transparent visible={isVisible} animationType="fade" onRequestClose={handleClose}>
       <View style={styles.overlay}>
         <Animated.View style={[styles.modalContainer, { backgroundColor: colors.surface, transform: [{ scale: scaleAnim }] }]}>
+
+          {/* Header accent bar */}
+          <View style={[styles.accentBar, { backgroundColor: colors.primary }]} />
+
+          {/* Close button */}
           <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-            <Icon name="x" size={24} color={colors.textLight} />
+            <View style={[styles.closeBtnBg, { backgroundColor: 'rgba(0,0,0,0.05)' }]}>
+              <Icon name="x" size={18} color={colors.textLight} />
+            </View>
           </TouchableOpacity>
 
-          <View style={[styles.logoContainer, { backgroundColor: colors.primary }]}>
-            <Icon name="award" size={40} color="#FFF" />
+          {/* Icon */}
+          <View style={[styles.iconCircle, { backgroundColor: colors.primary + '15' }]}>
+            <View style={[styles.iconInner, { backgroundColor: colors.primary }]}>
+              <Icon name="award" size={28} color="#FFF" />
+            </View>
           </View>
 
           <Text style={[styles.title, { color: colors.text }]}>Unlock Premium</Text>
           <Text style={[styles.subtitle, { color: colors.textLight }]}>
-            Get access to all poojas, personalized kundalis, and advanced panchangs by subscribing today!
+            Get access to all poojas, personalized kundalis, and advanced panchangs.
           </Text>
 
-          <TouchableOpacity style={[styles.subscribeButton, { backgroundColor: colors.primary }]} onPress={handleSubscribe}>
+          {/* Feature bullets */}
+          <View style={styles.featureList}>
+            {['All Pooja Guides', 'Personalized Kundali', 'Advanced Panchang'].map((feat, i) => (
+              <View key={i} style={styles.featureRow}>
+                <View style={[styles.featureDot, { backgroundColor: colors.primary }]} />
+                <Text style={[styles.featureText, { color: colors.text }]}>{feat}</Text>
+              </View>
+            ))}
+          </View>
+
+          <TouchableOpacity
+            style={[styles.subscribeButton, { backgroundColor: colors.primary }]}
+            onPress={handleSubscribe}
+            activeOpacity={0.8}
+          >
             <Text style={styles.subscribeText}>Subscribe Now</Text>
+            <Icon name="arrow-right" size={18} color="#FFF" style={{ marginLeft: 8 }} />
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -75,61 +97,102 @@ const SubscriptionReminderModal = () => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.55)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
   modalContainer: {
     width: '100%',
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 20,
+    overflow: 'hidden',
     alignItems: 'center',
-    elevation: 10,
+    elevation: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
   },
+  accentBar: {
+    height: 4,
+    width: '100%',
+  },
   closeButton: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 14,
+    right: 14,
     zIndex: 1,
-    padding: 4,
   },
-  logoContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+  closeBtnBg: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 10,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 28,
+    marginBottom: 16,
+  },
+  iconInner: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     textAlign: 'center',
-    marginBottom: 28,
-    lineHeight: 22,
+    marginBottom: 20,
+    lineHeight: 21,
+    paddingHorizontal: 16,
+  },
+  featureList: {
+    width: '100%',
+    paddingHorizontal: 28,
+    marginBottom: 24,
+    gap: 10,
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  featureDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  featureText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   subscribeButton: {
+    flexDirection: 'row',
     paddingVertical: 16,
     paddingHorizontal: 32,
-    borderRadius: 30,
-    width: '100%',
+    borderRadius: 14,
+    width: '85%',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
   },
   subscribeText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
 });
 

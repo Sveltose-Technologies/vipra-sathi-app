@@ -1,28 +1,33 @@
 export const lightColors = {
-  primary: '#C75B12', // Warm Orange (main brand)
-  primaryDark: '#A04A0E',
-  darkHeader: '#FFF5EE',
-  secondary: '#E5A872', // Light Orange
-  accent: '#16A34A', // Green (for Kundali)
-  success: '#16A34A', // Green
-  background: '#FFF5EE', // Warm Cream
-  surface: '#FFFFFF', // White
-  text: '#1E293B', // Dark Navy
-  textLight: '#6B7280', // Gray
-  error: '#EF4444',
-  border: '#F3E8DB', // Warm border
+  primary: '#B5451B',
+  primaryDark: '#8C3514',
+  darkHeader: '#7A2E10',
+  secondary: '#E8A87C',
+  accent: '#16A34A',
+  success: '#16A34A',
+  background: '#FFF8F3',
+  surface: '#FFFFFF',
+  text: '#1E293B',
+  textLight: '#6B7280',
+  error: '#DC2626',
+  border: '#F0E0D4',
   inputBg: '#FFFFFF',
-  notch: '#C75B12',
+  notch: '#B5451B',
   aajkaBg: '#FFF0E6',
+  earning: '#16A34A',
+  expense: '#DC2626',
+  dropdownBg: '#FFFFFF',
+  dropdownBorder: '#E5D5C8',
+  dropdownItemHover: '#FFF0E6',
 };
 
 export const darkColors = {
-  primary: '#C75B12',
-  primaryDark: '#A04A0E',
+  primary: '#D4713A',
+  primaryDark: '#B5451B',
   darkHeader: '#1E293B',
-  secondary: '#E5A872',
-  accent: '#16A34A',
-  success: '#16A34A',
+  secondary: '#E8A87C',
+  accent: '#22C55E',
+  success: '#22C55E',
   background: '#0F172A',
   surface: '#1E293B',
   text: '#F8FAFC',
@@ -31,6 +36,11 @@ export const darkColors = {
   border: '#334155',
   inputBg: '#334155',
   notch: '#000000',
+  earning: '#22C55E',
+  expense: '#F87171',
+  dropdownBg: '#1E293B',
+  dropdownBorder: '#334155',
+  dropdownItemHover: '#334155',
 };
 
-export const colors = lightColors; // Default export for backwards compatibility
+export const colors = lightColors;

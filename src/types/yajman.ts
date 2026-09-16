@@ -1,4 +1,4 @@
-export type YajmanCategory = 'Astrology' | 'Karmkand' | 'Vaastu' | 'Hastrekha' | 'Others';
+export type YajmanCategory = 'Astrology' | 'Karmkand' | 'Vaastu' | 'Hastrekha' | 'Others' | 'Puja Path' | 'Jyotish' | 'Vastu Consulting' | 'Hastarekha' | 'Numerology' | 'Tarot' | 'Other';
 
 export interface Yajman {
   id: string;

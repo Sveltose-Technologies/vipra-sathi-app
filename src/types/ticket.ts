@@ -1,4 +1,4 @@
-export type TicketCategory = 'Suggestions' | 'Content Issues' | 'Technical Issues' | 'Payment Issues' | 'Other Queries';
+export type TicketCategory = 'Suggestions' | 'Content Issues' | 'Technical Issues' | 'Payment Issues' | 'Other Queries' | 'Feature Request' | 'Account Issues' | 'Billing' | 'General Inquiry';
 export type TicketStatus = 'Pending' | 'Admin Review' | 'Resolved' | 'Closed';
 
 export interface Ticket {

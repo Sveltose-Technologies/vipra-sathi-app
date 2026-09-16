@@ -199,6 +199,15 @@ const CalendarScreen = () => {
                     </Text>
                   </View>
                 </View>
+                {event.yajmanName && (
+                  <View style={styles.yajmanRow}>
+                    <Icon name="user" size={12} color={colors.primary} />
+                    <Text style={[styles.yajmanText, { color: colors.primary }]}>{event.yajmanName}</Text>
+                    {event.yajmanPhone && (
+                      <Text style={[styles.yajmanPhone, { color: colors.textLight }]}>{event.yajmanPhone}</Text>
+                    )}
+                  </View>
+                )}
                 {event.description && (
                   <Text style={[styles.eventDesc, { color: colors.textLight }]} numberOfLines={2}>
                     {event.description}
@@ -396,15 +405,29 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 6,
   },
+  yajmanRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+  },
+  yajmanText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  yajmanPhone: {
+    fontSize: 11,
+  },
   fab: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 90,
     right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 999,
     ...Platform.select({
       ios: {
         shadowColor: '#1E293B',
@@ -412,7 +435,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 8,
       },
-      android: { elevation: 8 },
+      android: { elevation: 12 },
     }),
   },
 });

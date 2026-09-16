@@ -16,7 +16,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 60 * 24, // 24 hours
-      gcTime: Infinity, // Never garbage collect (keep until uninstall/logout)
+      gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
     },
   },
 });

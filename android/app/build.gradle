@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.viprasathi"
+    namespace "com.viprasathi.app"
     defaultConfig {
-        applicationId "com.viprasathi"
+        applicationId "com.viprasathi.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -180,3 +180,5 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+// react-native-vector-icons fonts are handled automatically by Expo autolinking

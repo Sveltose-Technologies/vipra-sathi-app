@@ -8,6 +8,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../theme/ThemeContext';
 import { useTickets } from '../hooks/useTickets';
 import { TicketCategory } from '../types/ticket';
+import CustomDropdown from '../components/CustomDropdown';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -16,7 +17,11 @@ const CATEGORIES: TicketCategory[] = [
   'Content Issues',
   'Technical Issues',
   'Payment Issues',
-  'Other Queries'
+  'Other Queries',
+  'Feature Request',
+  'Account Issues',
+  'Billing',
+  'General Inquiry',
 ];
 
 const CreateTicketScreen = () => {
@@ -117,24 +122,12 @@ const CreateTicketScreen = () => {
       <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContainer}>
 
         <View style={styles.section}>
-          <Text style={[styles.label, { color: colors.text, marginBottom: 12 }]}>Select Category</Text>
-          <View style={styles.categoryWrap}>
-            {CATEGORIES.map(cat => (
-              <TouchableOpacity
-                key={cat}
-                style={[
-                  styles.categoryChip,
-                  {
-                    backgroundColor: category === cat ? colors.primary : colors.surface,
-                    borderColor: category === cat ? colors.primary : colors.border
-                  }
-                ]}
-                onPress={() => setCategory(cat)}
-              >
-                <Text style={{ color: category === cat ? '#FFF' : colors.text, fontSize: 13 }}>{cat}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <CustomDropdown
+            label="Select Category"
+            value={category}
+            options={CATEGORIES}
+            onSelect={(val) => setCategory(val as TicketCategory)}
+          />
         </View>
 
         <View style={styles.section}>

@@ -11,7 +11,7 @@ interface AudioPlayerUIProps {
 
 const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
   const { colors, isDark } = useTheme();
-  
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSlowMode, setIsSlowMode] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
@@ -20,15 +20,13 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const soundRef = useRef<Audio.Sound | null>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
 
-  // Handle playback status updates
   const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
     if (!status.isLoaded) return;
-    
     setElapsed((status.positionMillis || 0) / 1000);
     setDuration((status.durationMillis || 1000) / 1000);
-    
     if (status.didJustFinish) {
       if (isRepeat) {
         soundRef.current?.replayAsync();
@@ -38,28 +36,22 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
     }
   };
 
-  // Initialize and load sound
   useEffect(() => {
     if (!audioUrl) return;
-
     let isCancelled = false;
 
     const loadSound = async () => {
       setIsLoading(true);
-      
-      // Unload previous sound
       if (soundRef.current) {
         await soundRef.current.unloadAsync();
         soundRef.current = null;
       }
-
       try {
         const { sound } = await Audio.Sound.createAsync(
           { uri: audioUrl },
           { shouldPlay: false },
           onPlaybackStatusUpdate
         );
-        
         if (!isCancelled) {
           soundRef.current = sound;
           setIsLoading(false);
@@ -68,14 +60,11 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
         }
       } catch (error) {
         console.log('Failed to load the sound', error);
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
+        if (!isCancelled) setIsLoading(false);
       }
     };
 
     loadSound();
-
     return () => {
       isCancelled = true;
       if (soundRef.current) {
@@ -85,36 +74,30 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
     };
   }, [audioUrl]);
 
-  // Handle Play/Pause logic
   useEffect(() => {
     const togglePlayback = async () => {
       if (!soundRef.current || isLoading) return;
-
       if (isPlaying) {
         await soundRef.current.playAsync();
       } else {
         await soundRef.current.pauseAsync();
       }
     };
-
     togglePlayback();
   }, [isPlaying, isLoading]);
 
-  // Handle Slow Mode
   useEffect(() => {
     if (soundRef.current) {
       soundRef.current.setRateAsync(isSlowMode ? 0.75 : 1.0, true);
     }
   }, [isSlowMode]);
 
-  // Handle Repeat Mode
   useEffect(() => {
     if (soundRef.current) {
       soundRef.current.setIsLoopingAsync(isRepeat);
     }
   }, [isRepeat]);
 
-  // Update playback status callback when isRepeat changes
   useEffect(() => {
     if (soundRef.current) {
       soundRef.current.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
@@ -129,7 +112,22 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
     }).start();
   }, [elapsed, duration]);
 
-  // Stop playback when app goes to background
+  // Pulse animation for playing state
+  useEffect(() => {
+    if (isPlaying) {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.08, duration: 800, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+        ])
+      );
+      loop.start();
+      return () => loop.stop();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [isPlaying]);
+
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState.match(/inactive|background/) && isPlaying && soundRef.current) {
@@ -149,91 +147,143 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
 
   const togglePlay = async () => {
     if (isLoading || !soundRef.current) return;
-    
-    // If finished and we press play, restart
     if (!isPlaying && elapsed >= duration - 1) {
       await soundRef.current.setPositionAsync(0);
       setElapsed(0);
     }
-    
     setIsPlaying(!isPlaying);
   };
 
+  const progressPercent = duration > 0 ? elapsed / duration : 0;
+
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? colors.surface : '#FFF' }]}>
-      
+    <View style={[styles.container, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
+
+      {/* Gradient-like top accent */}
+      <View style={[styles.topAccent, { backgroundColor: colors.primary }]} />
+
       <View style={styles.mainContent}>
-        {/* Album Art Icon */}
-        <View style={[styles.albumArt, { backgroundColor: colors.primary + '20' }]}>
-          <Icon name="music" size={24} color={colors.primary} />
-        </View>
+        {/* Album Art with pulse */}
+        <Animated.View style={[
+          styles.albumArt,
+          {
+            backgroundColor: colors.primary + '15',
+            borderColor: colors.primary + '30',
+            transform: [{ scale: pulseAnim }],
+          },
+        ]}>
+          <View style={[styles.albumArtInner, { backgroundColor: colors.primary + '25' }]}>
+            <Icon name={isPlaying ? 'headphones' : 'music'} size={26} color={colors.primary} />
+          </View>
+          {isPlaying && (
+            <View style={[styles.playingDot, { backgroundColor: colors.accent || '#16A34A' }]} />
+          )}
+        </Animated.View>
 
         <View style={styles.infoContainer}>
           <Text style={[styles.nowPlaying, { color: colors.textLight }]}>
-            {isLoading ? 'Loading...' : isPlaying ? 'Playing' : 'Paused'} • {formatTime(elapsed)} / {formatTime(duration)}
+            {isLoading ? 'Loading...' : isPlaying ? 'Now Playing' : 'Paused'}
           </Text>
           <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>{title}</Text>
-        </View>
-        
-        <View style={styles.controlsContainer}>
-          {/* Slow Mode Button */}
-          <TouchableOpacity 
-            style={styles.controlButton} 
-            onPress={() => setIsSlowMode(!isSlowMode)}
-            disabled={isLoading}
-          >
-            <Text style={[
-              styles.slowModeText, 
-              { 
-                color: isSlowMode ? colors.primary : colors.textLight,
-                fontWeight: isSlowMode ? 'bold' : 'normal',
-                opacity: isLoading ? 0.5 : 1
-              }
-            ]}>
-              0.75x
-            </Text>
-          </TouchableOpacity>
-
-          {/* Play/Pause Button */}
-          <TouchableOpacity 
-            style={[
-              styles.playButton, 
-              { 
-                backgroundColor: isLoading ? colors.border : colors.primary,
-                shadowColor: colors.primary 
-              }
-            ]}
-            onPress={togglePlay}
-            disabled={isLoading}
-          >
-            <Icon name={isPlaying ? "pause" : "play"} size={24} color="#FFF" style={!isPlaying && !isLoading ? { marginLeft: 3 } : {}} />
-          </TouchableOpacity>
-
-          {/* Repeat Button */}
-          <TouchableOpacity 
-            style={styles.controlButton}
-            onPress={() => setIsRepeat(!isRepeat)}
-            disabled={isLoading}
-          >
-            <Icon name="repeat" size={20} color={isRepeat ? colors.primary : colors.textLight} style={{ opacity: isLoading ? 0.5 : 1 }} />
-          </TouchableOpacity>
+          <Text style={[styles.timeText, { color: colors.textLight }]}>
+            {formatTime(elapsed)} / {formatTime(duration)}
+          </Text>
         </View>
       </View>
 
-      {/* Progress Bar at the bottom of the card */}
-      <View style={styles.progressBarContainer}>
-        <Animated.View 
+      {/* Progress bar */}
+      <View style={[styles.progressTrack, { backgroundColor: colors.border }]}>
+        <Animated.View
           style={[
-            styles.progressBarFill, 
-            { 
+            styles.progressFill,
+            {
               backgroundColor: colors.primary,
               width: progressAnim.interpolate({
                 inputRange: [0, 100],
-                outputRange: ['0%', '100%']
-              })
-            }
-          ]} 
+                outputRange: ['0%', '100%'],
+              }),
+            },
+          ]}
         />
+      </View>
+
+      {/* Controls */}
+      <View style={styles.controlsRow}>
+        {/* Slow mode */}
+        <TouchableOpacity
+          style={[styles.controlBtn, isSlowMode && { backgroundColor: colors.primary + '15' }]}
+          onPress={() => setIsSlowMode(!isSlowMode)}
+          disabled={isLoading}
+        >
+          <Text style={[styles.slowText, {
+            color: isSlowMode ? colors.primary : colors.textLight,
+            fontWeight: isSlowMode ? '800' : '500',
+          }]}>
+            0.75x
+          </Text>
+        </TouchableOpacity>
+
+        {/* Rewind 10s */}
+        <TouchableOpacity
+          style={styles.controlBtn}
+          onPress={async () => {
+            if (soundRef.current) {
+              const newPos = Math.max(0, (elapsed - 10) * 1000);
+              await soundRef.current.setPositionAsync(newPos);
+            }
+          }}
+          disabled={isLoading}
+        >
+          <Icon name="rotate-ccw" size={18} color={colors.textLight} />
+        </TouchableOpacity>
+
+        {/* Play / Pause - big circle */}
+        <TouchableOpacity
+          style={[
+            styles.playBtn,
+            {
+              backgroundColor: isLoading ? colors.border : colors.primary,
+              shadowColor: colors.primary,
+            },
+          ]}
+          onPress={togglePlay}
+          disabled={isLoading}
+          activeOpacity={0.8}
+        >
+          <Icon
+            name={isPlaying ? 'pause' : 'play'}
+            size={26}
+            color="#FFF"
+            style={!isPlaying && !isLoading ? { marginLeft: 3 } : {}}
+          />
+        </TouchableOpacity>
+
+        {/* Forward 10s */}
+        <TouchableOpacity
+          style={styles.controlBtn}
+          onPress={async () => {
+            if (soundRef.current) {
+              const newPos = Math.min(duration * 1000, (elapsed + 10) * 1000);
+              await soundRef.current.setPositionAsync(newPos);
+            }
+          }}
+          disabled={isLoading}
+        >
+          <Icon name="rotate-cw" size={18} color={colors.textLight} />
+        </TouchableOpacity>
+
+        {/* Repeat */}
+        <TouchableOpacity
+          style={[styles.controlBtn, isRepeat && { backgroundColor: colors.primary + '15' }]}
+          onPress={() => setIsRepeat(!isRepeat)}
+          disabled={isLoading}
+        >
+          <Icon
+            name="repeat"
+            size={18}
+            color={isRepeat ? colors.primary : colors.textLight}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -242,83 +292,110 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 16,
-    marginBottom: 24,
-    borderRadius: 24,
-    elevation: 12,
+    marginBottom: 16,
+    borderRadius: 20,
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
     shadowRadius: 12,
     overflow: 'hidden',
-    position: 'relative',
   },
-  progressBarContainer: {
-    height: 4,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+  topAccent: {
+    height: 3,
     width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  progressBarFill: {
-    height: '100%',
   },
   mainContent: {
-    padding: 16,
-    paddingBottom: 20, // Leave space for progress bar
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    padding: 16,
+    paddingBottom: 8,
   },
   albumArt: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 14,
+    borderWidth: 1.5,
+  },
+  albumArtInner: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playingDot: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#FFF',
   },
   infoContainer: {
     flex: 1,
-    marginRight: 8,
   },
   nowPlaying: {
     fontSize: 11,
-    marginBottom: 4,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    fontWeight: '600',
+    letterSpacing: 1,
+    fontWeight: '700',
+    marginBottom: 3,
   },
   title: {
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    marginBottom: 2,
   },
-  controlsContainer: {
+  timeText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  progressTrack: {
+    height: 3,
+    marginHorizontal: 16,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  controlsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 8,
   },
-  controlButton: {
-    padding: 8,
+  controlBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 40,
   },
-  slowModeText: {
+  slowText: {
     fontSize: 12,
   },
-  playButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  playBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 4,
+    marginHorizontal: 8,
     elevation: 6,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
     shadowRadius: 6,
-  }
+  },
 });
 
 export default AudioPlayerUI;

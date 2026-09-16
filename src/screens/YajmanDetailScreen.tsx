@@ -58,10 +58,16 @@ const YajmanDetailScreen = () => {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'Astrology': return '#8b5cf6';
-      case 'Karmkand': return '#f59e0b';
-      case 'Vaastu': return '#10b981';
-      case 'Hastrekha': return '#3b82f6';
-      default: return '#6b7280';
+      case 'Karmkand': return '#D97706';
+      case 'Vaastu': return '#059669';
+      case 'Hastrekha': return '#2563EB';
+      case 'Puja Path': return '#B5451B';
+      case 'Jyotish': return '#7C3AED';
+      case 'Vastu Consulting': return '#0D9488';
+      case 'Hastarekha': return '#2563EB';
+      case 'Numerology': return '#DC2626';
+      case 'Tarot': return '#9333EA';
+      default: return '#6B7280';
     }
   };
 

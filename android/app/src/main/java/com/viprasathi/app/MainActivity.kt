@@ -2,6 +2,8 @@ package com.viprasathi.app
 
 import android.os.Build
 import android.os.Bundle
+import com.viprasathi.app.R
+import com.viprasathi.app.BuildConfig
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
