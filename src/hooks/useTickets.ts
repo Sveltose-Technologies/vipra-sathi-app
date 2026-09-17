@@ -1,45 +1,53 @@
 import { useState, useCallback, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ticket, TicketCategory, TicketStatus } from '../types/ticket';
+import { Ticket, TicketStatus } from '../types/ticket';
 import Toast from 'react-native-toast-message';
-
-const TICKETS_STORAGE_KEY = '@support_tickets';
+import { ticketApi } from '../api/ticket';
+import { useAuth } from '../context/AuthContext';
 
 export const useTickets = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   const loadTickets = useCallback(async () => {
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      const stored = await AsyncStorage.getItem(TICKETS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setTickets(parsed.sort((a: Ticket, b: Ticket) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      const res = await ticketApi.getByUserId(user.id);
+      if (res && res.data) {
+        setTickets(res.data.sort((a: Ticket, b: Ticket) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      } else if (Array.isArray(res)) {
+        setTickets(res.sort((a: Ticket, b: Ticket) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
       }
     } catch (error) {
       console.error('Failed to load tickets', error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     loadTickets();
   }, [loadTickets]);
 
-  const addTicket = async (payload: Omit<Ticket, 'id' | 'status' | 'createdAt'>) => {
+  const addTicket = async (payload: Pick<Ticket, 'categoryId' | 'subject' | 'description' | 'remarks'>) => {
+    if (!user?.id) throw new Error('User not authenticated');
+    
     try {
-      const newTicket: Ticket = {
+      const newTicket = await ticketApi.create({
         ...payload,
-        id: Date.now().toString(),
+        userId: user.id,
         status: 'Pending',
-        createdAt: new Date().toISOString(),
-      };
+      });
 
-      const updatedTickets = [newTicket, ...tickets];
-      await AsyncStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(updatedTickets));
-      setTickets(updatedTickets);
+      // API might return data wrapped
+      const addedTicket = newTicket.data || newTicket;
+      
+      setTickets(prev => [addedTicket, ...prev]);
       
       Toast.show({
         type: 'success',

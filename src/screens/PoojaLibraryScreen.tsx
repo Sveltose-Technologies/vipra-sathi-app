@@ -7,6 +7,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { CATEGORIES, MOCK_POOJAS } from '../data/mockPoojas';
 import { Feather as Icon } from '@expo/vector-icons';
 import CustomHeader from '../components/CustomHeader';
+import CustomDropdown from '../components/CustomDropdown';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
 
@@ -18,30 +19,6 @@ const PoojaLibraryScreen = () => {
   const filteredPoojas = selectedCategory === 'All' 
     ? MOCK_POOJAS 
     : MOCK_POOJAS.filter(p => p.category === selectedCategory);
-
-  const renderCategoryPill = (category: string) => {
-    const isSelected = selectedCategory === category;
-    return (
-      <TouchableOpacity
-        key={category}
-        style={[
-          styles.categoryPill,
-          { 
-            backgroundColor: isSelected ? colors.primary : (isDark ? colors.surface : '#f0f0f0'),
-            borderColor: isSelected ? colors.primary : colors.border
-          }
-        ]}
-        onPress={() => setSelectedCategory(category)}
-      >
-        <Text style={[
-          styles.categoryText,
-          { color: isSelected ? '#FFFFFF' : colors.text }
-        ]}>
-          {category}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
 
   const renderPoojaCard = ({ item }: { item: typeof MOCK_POOJAS[0] }) => (
     <TouchableOpacity
@@ -67,14 +44,12 @@ const PoojaLibraryScreen = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CustomHeader title="Pooja Library" showBack={true} />
 
-      <View style={styles.categoriesContainer}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesScroll}
-        >
-          {CATEGORIES.map(renderCategoryPill)}
-        </ScrollView>
+      <View style={styles.dropdownContainer}>
+        <CustomDropdown
+          value={selectedCategory}
+          options={CATEGORIES}
+          onSelect={setSelectedCategory}
+        />
       </View>
 
       <FlatList
@@ -99,23 +74,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  categoriesContainer: {
-    marginBottom: 12,
-  },
-  categoriesScroll: {
+  dropdownContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 8,
-  },
-  categoryPill: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 24,
-    marginRight: 10,
-    borderWidth: 1,
-  },
-  categoryText: {
-    fontSize: 15,
-    fontWeight: '600',
+    paddingTop: 16,
+    paddingBottom: 4,
   },
   listContainer: {
     padding: 16,

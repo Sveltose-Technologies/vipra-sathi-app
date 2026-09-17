@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,12 +7,13 @@ import { Feather as Icon } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../theme/ThemeContext';
 import { useTickets } from '../hooks/useTickets';
-import { TicketCategory } from '../types/ticket';
+import { TicketCategoryType } from '../types/ticket';
 import CustomDropdown from '../components/CustomDropdown';
+import { ticketApi } from '../api/ticket';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const CATEGORIES: TicketCategory[] = [
+const FALLBACK_CATEGORIES = [
   'Suggestions',
   'Content Issues',
   'Technical Issues',
@@ -30,10 +31,35 @@ const CreateTicketScreen = () => {
   const insets = useSafeAreaInsets();
   const { addTicket } = useTickets();
 
-  const [category, setCategory] = useState<TicketCategory>('Suggestions');
+  const [categories, setCategories] = useState<TicketCategoryType[]>([]);
+  const [categoryName, setCategoryName] = useState('Suggestions');
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [remarks, setRemarks] = useState('');
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await ticketApi.getCategories();
+        if (res && res.data) {
+          const sorted = res.data.sort((a: TicketCategoryType, b: TicketCategoryType) => a.categoryName.localeCompare(b.categoryName));
+          setCategories(sorted);
+          if (sorted.length > 0) {
+            setCategoryName(sorted[0].categoryName);
+          }
+        } else if (Array.isArray(res)) {
+          const sorted = res.sort((a: TicketCategoryType, b: TicketCategoryType) => a.categoryName.localeCompare(b.categoryName));
+          setCategories(sorted);
+          if (sorted.length > 0) {
+            setCategoryName(sorted[0].categoryName);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch ticket categories', err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -51,8 +77,12 @@ const CreateTicketScreen = () => {
 
     setIsSubmitting(true);
     try {
+      // Find the matched category's ID if fetched, else fallback to name
+      const matched = categories.find(c => c.categoryName === categoryName);
+      const categoryId = matched ? matched._id : categoryName;
+
       await addTicket({
-        category,
+        categoryId,
         subject: subject.trim(),
         description: description.trim(),
         remarks: remarks.trim(),
@@ -124,9 +154,9 @@ const CreateTicketScreen = () => {
         <View style={styles.section}>
           <CustomDropdown
             label="Select Category"
-            value={category}
-            options={CATEGORIES}
-            onSelect={(val) => setCategory(val as TicketCategory)}
+            value={categoryName}
+            options={categories.length > 0 ? categories.map(c => c.categoryName) : FALLBACK_CATEGORIES}
+            onSelect={(val) => setCategoryName(val)}
           />
         </View>
 

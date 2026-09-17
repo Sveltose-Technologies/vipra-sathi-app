@@ -1,6 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { axiosInstance } from './axios';
 
 export interface YajmanApiPayload {
+  userId: string;
   name: string;
   email?: string;
   callingMobileNumber: string;
@@ -11,74 +12,39 @@ export interface YajmanApiPayload {
   city?: string;
   state?: string;
   address?: string;
-  categoryId?: string; // Send category name string for now
+  categoryId?: string; 
   date?: string; // kycDate
   remark?: string;
 }
 
-const STORAGE_KEY = '@yajmans_data';
-
-// Helper to simulate network delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 export const yajmanApi = {
   create: async (data: YajmanApiPayload) => {
-    await delay(500);
-    const existingStr = await AsyncStorage.getItem(STORAGE_KEY);
-    const existing = existingStr ? JSON.parse(existingStr) : [];
-    
-    const newYajman = {
-      ...data,
-      _id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([newYajman, ...existing]));
-    return { data: newYajman };
+    const response = await axiosInstance.post('/yajman-entry/create', data);
+    return response.data;
   },
   
   update: async (id: string, data: Partial<YajmanApiPayload>) => {
-    await delay(500);
-    const existingStr = await AsyncStorage.getItem(STORAGE_KEY);
-    let existing = existingStr ? JSON.parse(existingStr) : [];
-    
-    const index = existing.findIndex((y: any) => y._id === id || y.id === id);
-    if (index === -1) throw new Error('Yajman not found');
-    
-    const updated = {
-      ...existing[index],
-      ...data,
-      updatedAt: new Date().toISOString()
-    };
-    existing[index] = updated;
-    
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
-    return { data: updated };
+    const response = await axiosInstance.put(`/yajman-entry/update/${id}`, data);
+    return response.data;
   },
   
   delete: async (id: string) => {
-    await delay(500);
-    const existingStr = await AsyncStorage.getItem(STORAGE_KEY);
-    let existing = existingStr ? JSON.parse(existingStr) : [];
-    
-    existing = existing.filter((y: any) => y._id !== id && y.id !== id);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
-    return { success: true };
+    const response = await axiosInstance.delete(`/yajman-entry/delete/${id}`);
+    return response.data;
   },
   
   getById: async (id: string) => {
-    await delay(500);
-    const existingStr = await AsyncStorage.getItem(STORAGE_KEY);
-    const existing = existingStr ? JSON.parse(existingStr) : [];
-    const found = existing.find((y: any) => y._id === id || y.id === id);
-    if (!found) throw new Error('Yajman not found');
-    return { data: found };
+    const response = await axiosInstance.get(`/yajman-entry/get-by-id/${id}`);
+    return response.data;
   },
   
-  getAll: async () => {
-    await delay(500);
-    const existingStr = await AsyncStorage.getItem(STORAGE_KEY);
-    return { data: existingStr ? JSON.parse(existingStr) : [] };
+  getByUserId: async (userId: string) => {
+    const response = await axiosInstance.get(`/yajman-entry/get-by-userId/${userId}`);
+    return response.data;
+  },
+
+  getCategories: async () => {
+    const response = await axiosInstance.get('/yajman-category/get-all');
+    return response.data;
   }
 };

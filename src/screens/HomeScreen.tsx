@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Feather as Icon } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../theme/ThemeContext';
@@ -60,6 +61,7 @@ const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { colors, isDark, setTheme } = useTheme();
+  const { user } = useAuth();
 
   const toggleTheme = () => {
     setTheme(isDark ? 'light' : 'dark');
@@ -105,7 +107,7 @@ const HomeScreen = () => {
         {/* Greeting */}
         <View style={styles.greetingSection}>
           <Text style={[styles.greetingSubtext, { color: colors.textLight }]}>Namaste,</Text>
-          <Text style={[styles.greetingText, { color: colors.text }]}>Pandit Ji</Text>
+          <Text style={[styles.greetingText, { color: colors.text }]}>{user?.fullName || 'Pandit Ji'}</Text>
         </View>
 
         {/* Daily Spiritual Card */}
@@ -146,7 +148,7 @@ const HomeScreen = () => {
               activeOpacity={0.7}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: isDark ? colors.surface : '#FFF5EE', borderColor: colors.border }]}>
-                <Icon name={item.icon} size={20} color="#C75B12" />
+                <Icon name={item.icon as any} size={20} color="#C75B12" />
               </View>
               <Text style={[styles.quickActionLabel, { color: colors.text }]}>{item.label}</Text>
             </TouchableOpacity>
@@ -182,7 +184,7 @@ const HomeScreen = () => {
                   style={styles.serviceCardGradient}
                 >
                   <View style={styles.serviceIconContainer}>
-                    <Icon name={item.icon} size={22} color="#FFF" />
+                    <Icon name={item.icon as any} size={22} color="#FFF" />
                   </View>
                   <Text style={styles.serviceCardTitle}>{item.title}</Text>
                   <Text style={styles.serviceCardSubtitle}>{item.subtitle}</Text>

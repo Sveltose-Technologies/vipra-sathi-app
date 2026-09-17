@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Yajman } from '../types/yajman';
+import { Yajman, YajmanCategory } from '../types/yajman';
 import { yajmanApi, YajmanApiPayload } from '../api/yajman';
 import Toast from 'react-native-toast-message';
+import { useAuth } from '../context/AuthContext';
 
 export const useYajmans = () => {
+  const { user } = useAuth();
   const [yajmans, setYajmans] = useState<Yajman[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,8 @@ export const useYajmans = () => {
     city: item.city,
     state: item.state,
     address: item.address,
-    category: item.categoryId || 'Karmkand', // Fallback
+    category: item.categoryId?.name || item.category || 'Karmkand',
+    categoryId: item.categoryId?._id || item.categoryId,
     kycDate: item.date || new Date().toISOString(),
     remark: item.remark,
     createdAt: item.createdAt ? new Date(item.createdAt).getTime() : Date.now(),
@@ -31,6 +34,7 @@ export const useYajmans = () => {
   // Map local Yajman type to API payload
   const mapYajmanToApi = (yajmanData: Partial<Yajman>): Partial<YajmanApiPayload> => {
     const payload: Partial<YajmanApiPayload> = {
+      userId: user?.id || '',
       name: yajmanData.name,
       email: yajmanData.email,
       callingMobileNumber: yajmanData.callingMobile,
@@ -41,7 +45,7 @@ export const useYajmans = () => {
       city: yajmanData.city,
       state: yajmanData.state,
       address: yajmanData.address,
-      categoryId: yajmanData.category, // Sending string for now
+      categoryId: yajmanData.categoryId, // send categoryId instead of category string
       date: yajmanData.kycDate,
       remark: yajmanData.remark,
     };
@@ -56,10 +60,16 @@ export const useYajmans = () => {
 
   // Load yajmans from API
   const loadYajmans = useCallback(async () => {
+    if (!user?.id) {
+      setYajmans([]);
+      setIsLoading(false);
+      return;
+    }
+    
     try {
       setIsLoading(true);
       setError(null);
-      const data = await yajmanApi.getAll();
+      const data = await yajmanApi.getByUserId(user.id);
       if (data && Array.isArray(data)) {
         setYajmans(data.map(mapApiToYajman));
       } else if (data && data.data && Array.isArray(data.data)) {
@@ -73,7 +83,7 @@ export const useYajmans = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     loadYajmans();
