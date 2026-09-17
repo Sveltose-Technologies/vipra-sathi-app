@@ -7,6 +7,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { AARTI_CATEGORIES, MOCK_AARTIS } from '../data/mockLibrary';
 import { Feather as Icon } from '@expo/vector-icons';
 import CustomHeader from '../components/CustomHeader';
+import CustomDropdown from '../components/CustomDropdown';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -18,30 +19,6 @@ const AartiLibraryScreen = () => {
   const filteredAartis = selectedCategory === 'All' 
     ? MOCK_AARTIS 
     : MOCK_AARTIS.filter(a => a.category === selectedCategory);
-
-  const renderCategoryPill = (category: string) => {
-    const isSelected = selectedCategory === category;
-    return (
-      <TouchableOpacity
-        key={category}
-        style={[
-          styles.categoryPill,
-          { 
-            backgroundColor: isSelected ? colors.primary : (isDark ? colors.surface : '#f0f0f0'),
-            borderColor: isSelected ? colors.primary : colors.border
-          }
-        ]}
-        onPress={() => setSelectedCategory(category)}
-      >
-        <Text style={[
-          styles.categoryText,
-          { color: isSelected ? '#FFFFFF' : colors.text }
-        ]}>
-          {category}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
 
   const renderAartiCard = ({ item }: { item: typeof MOCK_AARTIS[0] }) => (
     <TouchableOpacity
@@ -85,14 +62,12 @@ const AartiLibraryScreen = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CustomHeader title="Aarti Library" showBack={true} />
 
-      <View style={styles.categoriesContainer}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesScroll}
-        >
-          {AARTI_CATEGORIES.map(renderCategoryPill)}
-        </ScrollView>
+      <View style={styles.dropdownContainer}>
+        <CustomDropdown
+          value={selectedCategory}
+          options={AARTI_CATEGORIES}
+          onSelect={setSelectedCategory}
+        />
       </View>
 
       <FlatList
@@ -115,16 +90,11 @@ const AartiLibraryScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  categoriesContainer: { marginBottom: 12 },
-  categoriesScroll: { paddingHorizontal: 16, paddingBottom: 8 },
-  categoryPill: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 24,
-    marginRight: 10,
-    borderWidth: 1,
+  dropdownContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 4,
   },
-  categoryText: { fontSize: 15, fontWeight: '600' },
   listContainer: { padding: 16, paddingBottom: 30 },
   aartiCard: {
     borderRadius: 20,

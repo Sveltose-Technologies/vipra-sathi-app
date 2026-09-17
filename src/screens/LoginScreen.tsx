@@ -14,15 +14,22 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather as Icon } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { axiosInstance } from '../api/axios';
+import { useAuth } from '../context/AuthContext';
+import { ActivityIndicator } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
 const BG_COLOR = '#FDF0E6';
 
 const LoginScreen = ({ navigation }: any) => {
+  const { login, continueAsGuest } = useAuth();
   const [mobileNumber, setMobileNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const handleSendOtp = () => {
+  const handleLogin = async () => {
     if (!mobileNumber || mobileNumber.length < 10) {
       Toast.show({
         type: 'error',
@@ -31,7 +38,43 @@ const LoginScreen = ({ navigation }: any) => {
       });
       return;
     }
-    navigation.navigate('VerifyOtp', { mobile: mobileNumber });
+    if (!password) {
+      Toast.show({
+        type: 'error',
+        text1: 'Missing Password',
+        text2: 'Please enter your password',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post('/auth/login', {
+        mobileNumber,
+        password,
+      });
+      
+      const userData = response.data.data || response.data.user || response.data;
+      
+      await login({
+        id: userData.id || userData._id || 'unknown_id',
+        fullName: userData.fullName || '',
+        displayName: userData.displayName || '',
+        email: userData.email || '',
+        mobileNumber: userData.mobileNumber || mobileNumber,
+        role: userData.role || 'user',
+      });
+
+      Toast.show({
+        type: 'success',
+        text1: 'Welcome!',
+        text2: 'You have successfully logged in.',
+      });
+    } catch (error) {
+      console.log('Login error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,11 +148,37 @@ const LoginScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* Get OTP Button */}
+          {/* Password Input */}
+          <View style={styles.inputSection}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <View style={styles.inputContainer}>
+              <View style={styles.phoneIconContainer}>
+                <Icon name="lock" size={18} color="#C75B12" />
+              </View>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Enter your password"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!isPasswordVisible}
+                autoCapitalize="none"
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity 
+                style={styles.eyeIconContainer} 
+                onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+              >
+                <Icon name={isPasswordVisible ? "eye" : "eye-off"} size={18} color="#9CA3AF" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Login Button */}
           <TouchableOpacity
             style={styles.otpButton}
-            onPress={handleSendOtp}
+            onPress={handleLogin}
             activeOpacity={0.85}
+            disabled={isLoading}
           >
             <LinearGradient
               colors={['#C75B12', '#E8944A']}
@@ -117,8 +186,14 @@ const LoginScreen = ({ navigation }: any) => {
               end={{ x: 1, y: 0 }}
               style={styles.otpButtonGradient}
             >
-              <Text style={styles.otpButtonText}>Get OTP</Text>
-              <Icon name="arrow-right" size={20} color="#FFF" />
+              {isLoading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <>
+                  <Text style={styles.otpButtonText}>Login</Text>
+                  <Icon name="arrow-right" size={20} color="#FFF" />
+                </>
+              )}
             </LinearGradient>
           </TouchableOpacity>
 
@@ -133,7 +208,7 @@ const LoginScreen = ({ navigation }: any) => {
           </View>
 
           {/* Guest option */}
-          <TouchableOpacity style={styles.guestBtn}>
+          <TouchableOpacity style={styles.guestBtn} onPress={continueAsGuest}>
             <Text style={styles.guestText}>Continue as Guest</Text>
           </TouchableOpacity>
 
@@ -253,6 +328,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     fontSize: 16,
     color: '#1E293B',
+  },
+  eyeIconContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   otpButton: {
     width: '100%',

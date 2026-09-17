@@ -29,7 +29,7 @@ const ThemedApp = () => {
   const { colors, isDark } = useTheme();
   return (
     <View style={{ flex: 1, backgroundColor: colors.notch }}>
-      <StatusBar barStyle={isDark ? "light-content" : "light-content"} backgroundColor={colors.notch} />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.notch} />
       <NavigationContainer>
         <AppNavigator />
       </NavigationContainer>

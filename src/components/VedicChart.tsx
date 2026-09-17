@@ -29,84 +29,42 @@ const MIN: number = PAD;
 const MAX: number = V - PAD;
 const H: number = V / 2;
 
-const SQR_CORNERS = [
-  { x: MIN, y: MIN },
-  { x: MAX, y: MIN },
-  { x: MAX, y: MAX },
-  { x: MIN, y: MAX },
-];
+const H_MID = 0.5;
+const O_MID = 0.25;
+const O_NUM = 0.08;
+const O_PLN = 0.16;
+const I_NUM = 0.18;
+const I_PLN = 0.28;
 
-const DMN_VERTS = [
-  { x: H, y: MIN },
-  { x: MAX, y: H },
-  { x: H, y: MAX },
-  { x: MIN, y: H },
-];
-
-function lineIntersect(
-  x1: number, y1: number, x2: number, y2: number,
-  x3: number, y3: number, x4: number, y4: number,
-): { x: number; y: number } | null {
-  const d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-  if (Math.abs(d) < 1e-10) return null;
-  const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / d;
-  return { x: x1 + t * (x2 - x1), y: y1 + t * (y2 - y1) };
-}
-
-const DIAG_I = (() => {
-  const i1 = lineIntersect(MIN, MIN, MAX, MAX, MIN, H, H, MIN)!;
-  const i2 = lineIntersect(MAX, MIN, MIN, MAX, H, MIN, MAX, H)!;
-  const i3 = lineIntersect(MAX, MAX, MIN, MIN, MAX, H, H, MAX)!;
-  const i4 = lineIntersect(MIN, MAX, MAX, MIN, H, MAX, MIN, H)!;
-  return [i1, i2, i3, i4];
-})();
-
-function ctr(...pts: { x: number; y: number }[]) {
-  const s = pts.reduce((a, p) => ({ x: a.x + p.x, y: a.y + p.y }), { x: 0, y: 0 });
-  return { x: s.x / pts.length, y: s.y / pts.length };
-}
-
-const HOUSE_CTR: Record<number, { x: number; y: number }> = {
-  1:  ctr(DMN_VERTS[0], DIAG_I[0], { x: H, y: H }, DIAG_I[1]),
-  2:  ctr(SQR_CORNERS[0], DMN_VERTS[0], DIAG_I[0]),
-  3:  ctr(SQR_CORNERS[0], DMN_VERTS[3], DIAG_I[0]),
-  4:  ctr(DMN_VERTS[3], DIAG_I[3], { x: H, y: H }, DIAG_I[0]),
-  5:  ctr(SQR_CORNERS[3], DMN_VERTS[3], DIAG_I[3]),
-  6:  ctr(SQR_CORNERS[3], DMN_VERTS[2], DIAG_I[3]),
-  7:  ctr(DMN_VERTS[2], DIAG_I[2], { x: H, y: H }, DIAG_I[3]),
-  8:  ctr(SQR_CORNERS[2], DMN_VERTS[2], DIAG_I[2]),
-  9:  ctr(SQR_CORNERS[2], DMN_VERTS[1], DIAG_I[2]),
-  10: ctr(DMN_VERTS[1], DIAG_I[1], { x: H, y: H }, DIAG_I[2]),
-  11: ctr(SQR_CORNERS[1], DMN_VERTS[1], DIAG_I[1]),
-  12: ctr(SQR_CORNERS[1], DMN_VERTS[0], DIAG_I[1]),
+const HOUSE_POS: Record<number, { x: number; y: number }> = {
+  1: { x: V * H_MID, y: V * I_NUM },
+  2: { x: V * O_MID, y: V * O_NUM },
+  3: { x: V * O_NUM, y: V * O_MID },
+  4: { x: V * I_NUM, y: V * H_MID },
+  5: { x: V * O_NUM, y: V * (1 - O_MID) },
+  6: { x: V * O_MID, y: V * (1 - O_NUM) },
+  7: { x: V * H_MID, y: V * (1 - I_NUM) },
+  8: { x: V * (1 - O_MID), y: V * (1 - O_NUM) },
+  9: { x: V * (1 - O_NUM), y: V * (1 - O_MID) },
+  10: { x: V * (1 - I_NUM), y: V * H_MID },
+  11: { x: V * (1 - O_NUM), y: V * O_MID },
+  12: { x: V * (1 - O_MID), y: V * O_NUM },
 };
 
-function nudge(c: { x: number; y: number }, h: number): { x: number; y: number } {
-  const e = 6;
-  switch (h) {
-    case 2:  return { x: c.x, y: c.y + e };
-    case 3:  return { x: c.x + e, y: c.y };
-    case 5:  return { x: c.x + e, y: c.y };
-    case 6:  return { x: c.x, y: c.y - e };
-    case 8:  return { x: c.x, y: c.y - e };
-    case 9:  return { x: c.x - e, y: c.y };
-    case 11: return { x: c.x - e, y: c.y };
-    case 12: return { x: c.x, y: c.y + e };
-    default: return c;
-  }
-}
-
-const HOUSE_POS: Record<number, { x: number; y: number }> = {};
-const PLANET_POS: Record<number, { x: number; y: number }> = {};
-for (let h = 1; h <= 12; h++) {
-  const base = HOUSE_CTR[h];
-  HOUSE_POS[h] = nudge(base, h);
-  const isInner = [1, 4, 7, 10].includes(h);
-  PLANET_POS[h] = {
-    x: HOUSE_POS[h].x,
-    y: HOUSE_POS[h].y + (isInner ? 18 : 15),
-  };
-}
+const PLANET_POS: Record<number, { x: number; y: number }> = {
+  1: { x: V * H_MID, y: V * I_PLN },
+  2: { x: V * O_MID, y: V * O_PLN },
+  3: { x: V * O_PLN, y: V * O_MID },
+  4: { x: V * I_PLN, y: V * H_MID },
+  5: { x: V * O_PLN, y: V * (1 - O_MID) },
+  6: { x: V * O_MID, y: V * (1 - O_PLN) },
+  7: { x: V * H_MID, y: V * (1 - I_PLN) },
+  8: { x: V * (1 - O_MID), y: V * (1 - O_PLN) },
+  9: { x: V * (1 - O_PLN), y: V * (1 - O_MID) },
+  10: { x: V * (1 - I_PLN), y: V * H_MID },
+  11: { x: V * (1 - O_PLN), y: V * O_MID },
+  12: { x: V * (1 - O_MID), y: V * O_PLN },
+};
 
 const VedicChart: React.FC<VedicChartProps> = ({ planets, size = 340, showAsc = false }) => {
   const { colors } = useTheme();
@@ -118,88 +76,52 @@ const VedicChart: React.FC<VedicChartProps> = ({ planets, size = 340, showAsc = 
       .join(' ');
 
   const STROKE = '#8B6B4A';
+  const BG_COLOR = '#FFF9F2';
+
+  const pTL = { x: (MIN + H) / 2, y: (MIN + H) / 2 };
+  const pTR = { x: (MAX + H) / 2, y: (MIN + H) / 2 };
+  const pBL = { x: (MIN + H) / 2, y: (MAX + H) / 2 };
+  const pBR = { x: (MAX + H) / 2, y: (MAX + H) / 2 };
+
+  const tip = (H - MIN) * 0.19;
+
+  const lotusPath = `
+    M ${H} ${MIN}
+    Q ${pTR.x} ${MIN + tip} ${pTR.x} ${pTR.y}
+    Q ${MAX - tip} ${pTR.y} ${MAX} ${H}
+    Q ${MAX - tip} ${pBR.y} ${pBR.x} ${pBR.y}
+    Q ${pBR.x} ${MAX - tip} ${H} ${MAX}
+    Q ${pBL.x} ${MAX - tip} ${pBL.x} ${pBL.y}
+    Q ${MIN + tip} ${pBL.y} ${MIN} ${H}
+    Q ${MIN + tip} ${pTL.y} ${pTL.x} ${pTL.y}
+    Q ${pTL.x} ${MIN + tip} ${H} ${MIN}
+    Z
+  `;
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
       <Svg width={size} height={size} viewBox={`0 0 ${V} ${V}`}>
-        <Defs>
-          <LinearGradient id="kg" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0%" stopColor="#FFF5EC" />
-            <Stop offset="50%" stopColor="#FFE8D2" />
-            <Stop offset="100%" stopColor="#FFD9B8" />
-          </LinearGradient>
-        </Defs>
 
-        <Rect
-          x={0} y={0}
-          width={V} height={V}
-          rx={16} ry={16}
-          fill="url(#kg)"
-          stroke={STROKE}
-          strokeWidth={2}
-        />
+        {/* Background */}
+        <Rect x={MIN} y={MIN} width={MAX - MIN} height={MAX - MIN} fill={BG_COLOR} />
 
-        <Rect
-          x={MIN} y={MIN}
-          width={MAX - MIN} height={MAX - MIN}
-          fill="none"
-          stroke={STROKE}
-          strokeWidth={1.8}
-        />
+        {/* Outer Double Border */}
+        <Rect x={MIN} y={MIN} width={MAX - MIN} height={MAX - MIN} fill="none" stroke={STROKE} strokeWidth={3} />
+        <Rect x={MIN + 6} y={MIN + 6} width={MAX - MIN - 12} height={MAX - MIN - 12} fill="none" stroke={STROKE} strokeWidth={1} />
 
-        <Path
-          d={`M ${DMN_VERTS[0].x} ${DMN_VERTS[0].y} L ${DMN_VERTS[1].x} ${DMN_VERTS[1].y} L ${DMN_VERTS[2].x} ${DMN_VERTS[2].y} L ${DMN_VERTS[3].x} ${DMN_VERTS[3].y} Z`}
-          fill="none"
-          stroke={STROKE}
-          strokeWidth={1.5}
-        />
+        {/* Diagonals */}
+        <Line x1={MIN} y1={MIN} x2={MAX} y2={MAX} stroke={STROKE} strokeWidth={1.5} />
+        <Line x1={MAX} y1={MIN} x2={MIN} y2={MAX} stroke={STROKE} strokeWidth={1.5} />
 
-        <Line
-          x1={SQR_CORNERS[0].x} y1={SQR_CORNERS[0].y}
-          x2={SQR_CORNERS[2].x} y2={SQR_CORNERS[2].y}
-          stroke={STROKE} strokeWidth={1}
-        />
-        <Line
-          x1={SQR_CORNERS[1].x} y1={SQR_CORNERS[1].y}
-          x2={SQR_CORNERS[3].x} y2={SQR_CORNERS[3].y}
-          stroke={STROKE} strokeWidth={1}
-        />
+        {/* Lotus Petals */}
+        <Path d={lotusPath} fill="none" stroke={STROKE} strokeWidth={1.5} />
 
-        <G opacity={0.5}>
-          <Path
-            d={`M ${MIN + 6} ${MIN + 32} Q ${MIN + 6} ${MIN + 6} ${MIN + 32} ${MIN + 6}`}
-            fill="none" stroke="#D4A574" strokeWidth={1.6}
-          />
-          <Path
-            d={`M ${MIN + 6} ${MIN + 20} Q ${MIN + 14} ${MIN + 14} ${MIN + 20} ${MIN + 6}`}
-            fill="none" stroke="#D4A574" strokeWidth={0.9}
-          />
-          <Path
-            d={`M ${MAX - 32} ${MIN + 6} Q ${MAX - 6} ${MIN + 6} ${MAX - 6} ${MIN + 32}`}
-            fill="none" stroke="#D4A574" strokeWidth={1.6}
-          />
-          <Path
-            d={`M ${MAX - 20} ${MIN + 6} Q ${MAX - 14} ${MIN + 14} ${MAX - 6} ${MIN + 20}`}
-            fill="none" stroke="#D4A574" strokeWidth={0.9}
-          />
-          <Path
-            d={`M ${MIN + 6} ${MAX - 32} Q ${MIN + 6} ${MAX - 6} ${MIN + 32} ${MAX - 6}`}
-            fill="none" stroke="#D4A574" strokeWidth={1.6}
-          />
-          <Path
-            d={`M ${MIN + 6} ${MAX - 20} Q ${MIN + 14} ${MAX - 14} ${MIN + 20} ${MAX - 6}`}
-            fill="none" stroke="#D4A574" strokeWidth={0.9}
-          />
-          <Path
-            d={`M ${MAX - 32} ${MAX - 6} Q ${MAX - 6} ${MAX - 6} ${MAX - 6} ${MAX - 32}`}
-            fill="none" stroke="#D4A574" strokeWidth={1.6}
-          />
-          <Path
-            d={`M ${MAX - 20} ${MAX - 6} Q ${MAX - 14} ${MAX - 14} ${MAX - 6} ${MAX - 20}`}
-            fill="none" stroke="#D4A574" strokeWidth={0.9}
-          />
-        </G>
+        {/* Center Om Box */}
+        <Rect x={H - 24} y={H - 24} width={48} height={48} fill={BG_COLOR} stroke={STROKE} strokeWidth={2} />
+        <Rect x={H - 20} y={H - 20} width={40} height={40} fill="none" stroke={STROKE} strokeWidth={1} />
+        <SvgText x={H} y={H + 9} textAnchor="middle" fontSize={26} fontWeight="bold" fill={STROKE}>ॐ</SvgText>
 
+        {/* Houses */}
         {([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const).map((h) => {
           const p = HOUSE_POS[h];
           return (
@@ -208,7 +130,7 @@ const VedicChart: React.FC<VedicChartProps> = ({ planets, size = 340, showAsc = 
               x={p.x}
               y={p.y}
               textAnchor="middle"
-              fontSize={h === 1 ? 15 : 13}
+              fontSize={h === 1 ? 16 : 14}
               fontWeight="700"
               fill="#B55A2A"
             >
@@ -220,9 +142,9 @@ const VedicChart: React.FC<VedicChartProps> = ({ planets, size = 340, showAsc = 
         {showAsc && (
           <SvgText
             x={HOUSE_POS[1].x}
-            y={HOUSE_POS[1].y - 14}
+            y={HOUSE_POS[1].y - 18}
             textAnchor="middle"
-            fontSize={9}
+            fontSize={10}
             fontWeight="600"
             fill="#8B5A2A"
           >
@@ -230,6 +152,7 @@ const VedicChart: React.FC<VedicChartProps> = ({ planets, size = 340, showAsc = 
           </SvgText>
         )}
 
+        {/* Planets */}
         {([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const).map((h) => {
           const txt = getHousePlanets(h);
           if (!txt) return null;
@@ -240,7 +163,7 @@ const VedicChart: React.FC<VedicChartProps> = ({ planets, size = 340, showAsc = 
               x={p.x}
               y={p.y}
               textAnchor="middle"
-              fontSize={9}
+              fontSize={12}
               fontWeight="600"
               fill="#8B5A2A"
             >

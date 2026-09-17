@@ -1,13 +1,22 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export interface UserProfile {
+  id: string;
+  fullName: string;
+  displayName: string;
+  email: string;
+  mobileNumber: string;
+  role: string;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   isGuest: boolean;
   isLoading: boolean;
   hasSeenOnboarding: boolean;
-  user: { uid: string; mobileNumber: string } | null;
-  login: (uid: string, mobileNumber: string) => Promise<void>;
+  user: UserProfile | null;
+  login: (userData: UserProfile) => Promise<void>;
   logout: () => Promise<void>;
   continueAsGuest: () => Promise<void>;
   completeOnboardingFlow: () => Promise<void>;
@@ -34,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isGuest, setIsGuest] = useState(false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<{ uid: string; mobileNumber: string } | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     checkInitialState();
@@ -47,11 +56,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsGuest(true);
       }
 
-      const uid = await AsyncStorage.getItem('user_uid');
+      const id = await AsyncStorage.getItem('user_id');
       const mobileNumber = await AsyncStorage.getItem('user_mobile');
+      const fullName = await AsyncStorage.getItem('user_fullName') || '';
+      const displayName = await AsyncStorage.getItem('user_displayName') || '';
+      const email = await AsyncStorage.getItem('user_email') || '';
+      const role = await AsyncStorage.getItem('user_role') || 'user';
       
-      if (uid && mobileNumber) {
-        setUser({ uid, mobileNumber });
+      if (id && mobileNumber) {
+        setUser({ id, mobileNumber, fullName, displayName, email, role });
         setIsAuthenticated(true);
       }
     } catch (e) {
@@ -62,23 +75,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (uid: string, mobileNumber: string) => {
+  const login = async (userData: UserProfile) => {
     try {
-      await AsyncStorage.setItem('user_uid', uid);
-      await AsyncStorage.setItem('user_mobile', mobileNumber);
+      await AsyncStorage.setItem('user_id', userData.id);
+      await AsyncStorage.setItem('user_mobile', userData.mobileNumber);
+      await AsyncStorage.setItem('user_fullName', userData.fullName || '');
+      await AsyncStorage.setItem('user_displayName', userData.displayName || '');
+      await AsyncStorage.setItem('user_email', userData.email || '');
+      await AsyncStorage.setItem('user_role', userData.role || 'user');
       await AsyncStorage.removeItem('is_guest');
     } catch (e) {
       // Continue without persistence
     }
-    setUser({ uid, mobileNumber });
+    setUser(userData);
     setIsAuthenticated(true);
     setIsGuest(false);
   };
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem('user_uid');
+      await AsyncStorage.removeItem('user_id');
       await AsyncStorage.removeItem('user_mobile');
+      await AsyncStorage.removeItem('user_fullName');
+      await AsyncStorage.removeItem('user_displayName');
+      await AsyncStorage.removeItem('user_email');
+      await AsyncStorage.removeItem('user_role');
       await AsyncStorage.removeItem('is_guest');
       await AsyncStorage.removeItem('has_seen_onboarding');
     } catch (e) {

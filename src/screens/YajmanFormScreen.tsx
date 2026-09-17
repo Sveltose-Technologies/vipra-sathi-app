@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, StatusBar, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Feather as Icon } from '@expo/vector-icons';
@@ -10,10 +10,9 @@ import { useTranslation } from 'react-i18next';
 import { useYajmans } from '../hooks/useYajmans';
 import { YajmanCategory } from '../types/yajman';
 import CustomDropdown from '../components/CustomDropdown';
+import { yajmanApi } from '../api/yajman';
 
 type FormRouteProp = RouteProp<RootStackParamList, 'YajmanForm'>;
-
-const CATEGORIES: YajmanCategory[] = ['Astrology', 'Karmkand', 'Vaastu', 'Hastrekha', 'Others', 'Puja Path', 'Jyotish', 'Vastu Consulting', 'Hastarekha', 'Numerology', 'Tarot', 'Other'];
 
 const YajmanFormScreen = () => {
   const { colors, isDark } = useTheme();
@@ -26,6 +25,26 @@ const YajmanFormScreen = () => {
   const existingYajman = route.params?.yajman;
   const isEditing = !!existingYajman;
 
+  const [categories, setCategories] = useState<YajmanCategory[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await yajmanApi.getCategories();
+        if (res && res.data) {
+          const sorted = res.data.sort((a: YajmanCategory, b: YajmanCategory) => a.categoryName.localeCompare(b.categoryName));
+          setCategories(sorted);
+        } else if (Array.isArray(res)) {
+          const sorted = res.sort((a: YajmanCategory, b: YajmanCategory) => a.categoryName.localeCompare(b.categoryName));
+          setCategories(sorted);
+        }
+      } catch (err) {
+        console.error('Failed to fetch categories', err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const [formData, setFormData] = useState({
     name: existingYajman?.name || '',
     email: existingYajman?.email || '',
@@ -35,6 +54,7 @@ const YajmanFormScreen = () => {
     state: existingYajman?.state || '',
     address: existingYajman?.address || '',
     category: existingYajman?.category || 'Karmkand',
+    categoryId: existingYajman?.categoryId || '',
     yearlyProgramName: existingYajman?.yearlyProgramName || '',
     remark: existingYajman?.remark || '',
   });
@@ -163,8 +183,15 @@ const YajmanFormScreen = () => {
           <CustomDropdown
             label="Category"
             value={formData.category}
-            options={CATEGORIES}
-            onSelect={(val) => setFormData({ ...formData, category: val as YajmanCategory })}
+            options={categories.length > 0 ? categories.map(c => c.categoryName) : ['Karmkand', 'Astrology', 'Others']}
+            onSelect={(val) => {
+              const matched = categories.find(c => c.categoryName === val);
+              setFormData({ 
+                ...formData, 
+                category: val,
+                categoryId: matched ? matched._id : ''
+              });
+            }}
           />
         </View>
 

@@ -1,4 +1,8 @@
-export type YajmanCategory = 'Astrology' | 'Karmkand' | 'Vaastu' | 'Hastrekha' | 'Others' | 'Puja Path' | 'Jyotish' | 'Vastu Consulting' | 'Hastarekha' | 'Numerology' | 'Tarot' | 'Other';
+export interface YajmanCategory {
+  _id: string;
+  categoryName: string;
+  [key: string]: any;
+}
 
 export interface Yajman {
   id: string;
@@ -13,7 +17,8 @@ export interface Yajman {
   city?: string;
   state?: string;
   address?: string;
-  category: YajmanCategory;
+  category: string;
+  categoryId?: string;
   kycDate: string; // ISO Date string YYYY-MM-DD
   remark?: string;
   createdAt: number;

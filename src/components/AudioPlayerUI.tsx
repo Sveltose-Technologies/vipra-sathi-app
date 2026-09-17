@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, AppState, AppStateStatus } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Feather as Icon } from '@expo/vector-icons';
-import { Audio, AVPlaybackStatus } from 'expo-av';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 
 interface AudioPlayerUIProps {
   title: string;
@@ -12,97 +12,27 @@ interface AudioPlayerUIProps {
 const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
   const { colors, isDark } = useTheme();
 
-  const [isPlaying, setIsPlaying] = useState(false);
+  const player = useAudioPlayer(audioUrl || null);
+  const status = useAudioPlayerStatus(player);
+
   const [isSlowMode, setIsSlowMode] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
-  const [duration, setDuration] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const soundRef = useRef<Audio.Sound | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
 
-  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (!status.isLoaded) return;
-    setElapsed((status.positionMillis || 0) / 1000);
-    setDuration((status.durationMillis || 1000) / 1000);
-    if (status.didJustFinish) {
-      if (isRepeat) {
-        soundRef.current?.replayAsync();
-      } else {
-        setIsPlaying(false);
-      }
-    }
-  };
+  const isPlaying = status.playing;
+  const isLoading = status.isBuffering || !status.isLoaded;
+  const elapsed = status.currentTime;
+  const duration = status.duration || 1; // avoid divide by zero
 
   useEffect(() => {
-    if (!audioUrl) return;
-    let isCancelled = false;
-
-    const loadSound = async () => {
-      setIsLoading(true);
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-      try {
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: audioUrl },
-          { shouldPlay: false },
-          onPlaybackStatusUpdate
-        );
-        if (!isCancelled) {
-          soundRef.current = sound;
-          setIsLoading(false);
-        } else {
-          await sound.unloadAsync();
-        }
-      } catch (error) {
-        console.log('Failed to load the sound', error);
-        if (!isCancelled) setIsLoading(false);
-      }
-    };
-
-    loadSound();
-    return () => {
-      isCancelled = true;
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-    };
-  }, [audioUrl]);
+    player.loop = isRepeat;
+  }, [isRepeat, player]);
 
   useEffect(() => {
-    const togglePlayback = async () => {
-      if (!soundRef.current || isLoading) return;
-      if (isPlaying) {
-        await soundRef.current.playAsync();
-      } else {
-        await soundRef.current.pauseAsync();
-      }
-    };
-    togglePlayback();
-  }, [isPlaying, isLoading]);
-
-  useEffect(() => {
-    if (soundRef.current) {
-      soundRef.current.setRateAsync(isSlowMode ? 0.75 : 1.0, true);
-    }
-  }, [isSlowMode]);
-
-  useEffect(() => {
-    if (soundRef.current) {
-      soundRef.current.setIsLoopingAsync(isRepeat);
-    }
-  }, [isRepeat]);
-
-  useEffect(() => {
-    if (soundRef.current) {
-      soundRef.current.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
-    }
-  }, [isRepeat]);
+    player.playbackRate = isSlowMode ? 0.75 : 1.0;
+  }, [isSlowMode, player]);
 
   useEffect(() => {
     Animated.timing(progressAnim, {
@@ -130,14 +60,13 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
 
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
-      if (nextAppState.match(/inactive|background/) && isPlaying && soundRef.current) {
-        soundRef.current.pauseAsync();
-        setIsPlaying(false);
+      if (nextAppState.match(/inactive|background/) && isPlaying) {
+        player.pause();
       }
     };
     const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => subscription.remove();
-  }, [isPlaying]);
+  }, [isPlaying, player]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -145,13 +74,16 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  const togglePlay = async () => {
-    if (isLoading || !soundRef.current) return;
+  const togglePlay = () => {
+    if (isLoading) return;
     if (!isPlaying && elapsed >= duration - 1) {
-      await soundRef.current.setPositionAsync(0);
-      setElapsed(0);
+      player.seekTo(0);
     }
-    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      player.pause();
+    } else {
+      player.play();
+    }
   };
 
   const progressPercent = duration > 0 ? elapsed / duration : 0;
@@ -226,11 +158,9 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
         {/* Rewind 10s */}
         <TouchableOpacity
           style={styles.controlBtn}
-          onPress={async () => {
-            if (soundRef.current) {
-              const newPos = Math.max(0, (elapsed - 10) * 1000);
-              await soundRef.current.setPositionAsync(newPos);
-            }
+          onPress={() => {
+            const newPos = Math.max(0, elapsed - 10);
+            player.seekTo(newPos);
           }}
           disabled={isLoading}
         >
@@ -261,11 +191,9 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
         {/* Forward 10s */}
         <TouchableOpacity
           style={styles.controlBtn}
-          onPress={async () => {
-            if (soundRef.current) {
-              const newPos = Math.min(duration * 1000, (elapsed + 10) * 1000);
-              await soundRef.current.setPositionAsync(newPos);
-            }
+          onPress={() => {
+            const newPos = Math.min(duration, elapsed + 10);
+            player.seekTo(newPos);
           }}
           disabled={isLoading}
         >

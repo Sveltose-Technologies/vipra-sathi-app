@@ -47,7 +47,7 @@ const HelpCenterScreen = () => {
   const renderResource = (item: typeof RESOURCES[0]) => (
     <TouchableOpacity key={item.id} style={[styles.resourceCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={[styles.resourceIcon, { backgroundColor: colors.primary + '15' }]}>
-        <Icon name={item.icon} size={20} color={colors.primary} />
+        <Icon name={item.icon as any} size={20} color={colors.primary} />
       </View>
       <Text style={[styles.resourceTitle, { color: colors.text }]}>{item.title}</Text>
       <Icon name="chevron-right" size={20} color={colors.textLight} />
@@ -57,7 +57,11 @@ const HelpCenterScreen = () => {
   const renderTicket = ({ item }: { item: Ticket }) => (
     <View style={[styles.ticketCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={styles.ticketHeader}>
-        <Text style={[styles.ticketCategory, { color: colors.textLight }]}>{item.category}</Text>
+        <Text style={[styles.ticketCategory, { color: colors.textLight }]}>
+          {typeof item.categoryId === 'object' && item.categoryId !== null 
+            ? (item.categoryId as any).categoryName 
+            : item.categoryId}
+        </Text>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
           <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>{item.status}</Text>
         </View>
@@ -109,7 +113,7 @@ const HelpCenterScreen = () => {
           ) : (
             <FlatList
               data={tickets}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item._id}
               renderItem={renderTicket}
               scrollEnabled={false}
               contentContainerStyle={styles.ticketsList}
