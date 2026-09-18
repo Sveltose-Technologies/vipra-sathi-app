@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../theme/ThemeContext';
@@ -306,6 +306,7 @@ const KundaliGeneratedScreen = () => {
   const { name, dob, tob, place } = route.params;
 
   const [selectedChart, setSelectedChart] = useState('Lagna (D1)');
+  const [activeTab, setActiveTab] = useState<'kundli' | 'dasha' | 'panchang'>('kundli');
   const isDashas = selectedChart === 'Dashas';
   const chartKey = getChartKey(selectedChart);
 
@@ -313,11 +314,26 @@ const KundaliGeneratedScreen = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <CustomHeader title="Your Kundali" showBack={true} />
 
+      {/* Tab Buttons */}
+      <View style={styles.tabContainer}>
+        {(['kundli', 'dasha', 'panchang'] as const).map((tab) => (
+          <TouchableOpacity
+            key={tab}
+            style={[styles.tabButton, activeTab === tab && { backgroundColor: colors.primary }]}
+            onPress={() => setActiveTab(tab)}
+          >
+            <Text style={[styles.tabText, activeTab === tab ? { color: '#FFF' } : { color: colors.textLight }]}>
+              {tab === 'kundli' ? 'Kundli' : tab === 'dasha' ? 'Dasha' : 'Panchang'}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* User Info Card */}
-        <View style={[styles.userInfoCard, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+        <View style={[styles.userInfoCard, { backgroundColor: colors.surface, borderColor: colors.primary, borderWidth: 2 }]}>
           <View style={[styles.userIconBg, { backgroundColor: colors.primary }]}>
-            <Icon name="user" size={32} color="#FFF" />
+            <Icon name="user" size={24} color="#FFF" />
           </View>
           <View style={styles.userDetails}>
             <Text style={[styles.userName, { color: colors.text }]}>{name}</Text>
@@ -326,55 +342,69 @@ const KundaliGeneratedScreen = () => {
           </View>
         </View>
 
-        {/* Dropdown */}
-        <CustomDropdown
-          label="Select Chart"
-          value={selectedChart}
-          options={ALL_CHARTS}
-          onSelect={setSelectedChart}
-        />
+        {activeTab === 'kundli' ? (
+          <>
+            {/* Dropdown */}
+            <CustomDropdown
+              label="Select Chart"
+              value={selectedChart}
+              options={ALL_CHARTS}
+              onSelect={setSelectedChart}
+            />
 
-        {/* Content Area */}
-        <View style={[styles.contentArea, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {getChartTitle(selectedChart)}
-          </Text>
+            {/* Content Area */}
+            <View style={styles.contentArea}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                {getChartTitle(selectedChart)}
+              </Text>
 
-          {!isDashas && chartKey && MOCK_CHARTS[chartKey] ? (
-            <View style={styles.chartWrapper}>
-              <VedicChart planets={MOCK_CHARTS[chartKey]} size={360} showAsc={chartKey === 'Lagna'} />
-            </View>
-          ) : (
-            <View style={styles.dashasContainer}>
-              {MOCK_DASHAS.map((dasha, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.dashaItem,
-                    { borderBottomColor: colors.border },
-                    dasha.current && {
-                      backgroundColor: colors.primary + '08',
-                      borderLeftColor: colors.primary,
-                      borderLeftWidth: 4,
-                    },
-                  ]}
-                >
-                  <View>
-                    <Text style={[styles.dashaPlanet, { color: dasha.current ? colors.primary : colors.text }]}>
-                      {dasha.planet} Mahadasha
-                    </Text>
-                    <Text style={[styles.dashaDuration, { color: colors.textLight }]}>{dasha.duration}</Text>
-                  </View>
-                  {dasha.current && (
-                    <View style={[styles.activeBadge, { backgroundColor: colors.primary }]}>
-                      <Text style={styles.activeBadgeText}>Current</Text>
-                    </View>
-                  )}
+              {!isDashas && chartKey && MOCK_CHARTS[chartKey] ? (
+                <View style={styles.chartWrapper}>
+                  <VedicChart planets={MOCK_CHARTS[chartKey]} size={360} showAsc={chartKey === 'Lagna'} />
                 </View>
-              ))}
+              ) : (
+                <View style={styles.dashasContainer}>
+                  {MOCK_DASHAS.map((dasha, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.dashaItem,
+                        { borderBottomColor: colors.border },
+                        dasha.current && {
+                          backgroundColor: colors.primary + '08',
+                          borderLeftColor: colors.primary,
+                          borderLeftWidth: 4,
+                        },
+                      ]}
+                    >
+                      <View>
+                        <Text style={[styles.dashaPlanet, { color: dasha.current ? colors.primary : colors.text }]}>
+                          {dasha.planet} Mahadasha
+                        </Text>
+                        <Text style={[styles.dashaDuration, { color: colors.textLight }]}>{dasha.duration}</Text>
+                      </View>
+                      {dasha.current && (
+                        <View style={[styles.activeBadge, { backgroundColor: colors.primary }]}>
+                          <Text style={styles.activeBadgeText}>Current</Text>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
-          )}
-        </View>
+          </>
+        ) : (
+          <View style={styles.underConstruction}>
+            <Icon name="construction" size={40} color={colors.textLight} />
+            <Text style={[styles.underConstructionText, { color: colors.textLight }]}>
+              {activeTab === 'dasha' ? 'Dasha' : 'Panchang'} Feature Under Construction
+            </Text>
+            <Text style={[styles.underConstructionSubtext, { color: colors.textLight }]}>
+              Coming Soon
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -384,89 +414,119 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  tabContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    marginBottom: 8,
+    gap: 8,
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  tabText: {
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
   scrollContent: {
-    padding: 16,
+    padding: 12,
     paddingBottom: 40,
   },
   userInfoCard: {
     flexDirection: 'row',
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 2,
     alignItems: 'center',
-    elevation: 4,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
   userIconBg: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 10,
   },
   userDetails: {
     flex: 1,
   },
   userName: {
-    fontSize: 22,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   userInfoText: {
-    fontSize: 14,
-    marginBottom: 2,
+    fontSize: 11,
+    marginBottom: 1,
     fontWeight: '500',
   },
   contentArea: {
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    minHeight: 440,
+    borderRadius: 12,
+    padding: 12,
+    minHeight: 400,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 12,
     textAlign: 'center',
   },
   chartWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
   dashasContainer: {
-    marginTop: 10,
+    marginTop: 6,
   },
   dashaItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
   },
   dashaPlanet: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   dashaDuration: {
-    fontSize: 14,
+    fontSize: 11,
   },
   activeBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
   activeBadgeText: {
     color: '#FFF',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
+  },
+  underConstruction: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  underConstructionText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 12,
+  },
+  underConstructionSubtext: {
+    fontSize: 12,
+    marginTop: 4,
+    opacity: 0.6,
   },
 });
 

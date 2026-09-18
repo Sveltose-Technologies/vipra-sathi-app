@@ -19,7 +19,7 @@ const LibraryHubScreen = () => {
       onPress={() => navigation.navigate(route as any)}
     >
       <View style={[styles.iconContainer, { backgroundColor: colors.primary + '15' }]}>
-        <Icon name={icon} size={32} color={colors.primary} />
+        <Icon name={icon} size={22} color={colors.primary} />
       </View>
       <View style={styles.textContainer}>
         <Text style={[styles.cardTitle, { color: colors.text }]}>{title}</Text>
@@ -64,34 +64,34 @@ const LibraryHubScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { padding: 20, paddingTop: 30 },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
-  headerSubtitle: { fontSize: 16 },
-  content: { padding: 16 },
+  header: { padding: 14, paddingTop: 20 },
+  headerTitle: { fontSize: 15, fontWeight: 'bold', marginBottom: 2 },
+  headerSubtitle: { fontSize: 13 },
+  content: { padding: 12 },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
-    borderRadius: 16,
+    padding: 14,
+    borderRadius: 12,
     borderWidth: 1,
-    marginBottom: 16,
-    elevation: 2,
+    marginBottom: 10,
+    elevation: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
   },
   iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   textContainer: { flex: 1 },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
-  cardDesc: { fontSize: 14, lineHeight: 20 },
+  cardTitle: { fontSize: 14, fontWeight: 'bold', marginBottom: 2 },
+  cardDesc: { fontSize: 11, lineHeight: 15 },
 });
 
 export default LibraryHubScreen;

@@ -11,13 +11,57 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+const HorizontalBarChart = ({ data, maxValue, colors: themeColors }: { data: { label: string; value: number }[]; maxValue: number; colors: any }) => {
+  const ticks = [100, 75, 50, 25, 0];
+
+  return (
+    <View style={styles.barChartContainer}>
+      <View style={styles.barChartRow}>
+        <View style={styles.yAxis}>
+          {ticks.map((tick) => (
+            <Text key={tick} style={[styles.yAxisLabel, { color: themeColors.textLight }]}>
+              {tick}%
+            </Text>
+          ))}
+        </View>
+        <View style={styles.barsArea}>
+          {ticks.map((tick) => (
+            <View key={tick} style={[styles.gridLine, { top: `${100 - tick}%`, backgroundColor: themeColors.border }]} />
+          ))}
+          <View style={styles.barsRow}>
+            {data.map((item, index) => {
+              const pct = maxValue > 0 ? Math.round((item.value / maxValue) * 100) : 0;
+              return (
+                <View key={index} style={styles.barColumn}>
+                  <Text style={[styles.barPercent, { color: '#C75B12' }]}>{pct}%</Text>
+                  <View style={styles.barTrack}>
+                    <View style={[styles.barFill, { height: `${pct}%`, backgroundColor: '#C75B12' }]} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      </View>
+      <View style={[styles.xAxis, { paddingLeft: 32 }]}>
+        {data.map((item, index) => (
+          <View key={index} style={styles.xAxisItem}>
+            <Text style={[styles.xAxisLabel, { color: themeColors.text }]} numberOfLines={1}>
+              {item.label}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
 const AccountManagerDashboardScreen = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  // Mock Data for Dashboard
   const [dashboardData] = useState({
     monthlyTotal: {
       aaya: 45000,
@@ -31,6 +75,13 @@ const AccountManagerDashboardScreen = () => {
       { id: '4', source: 'Samagri', amount: 7000, type: 'expense' },
     ]
   });
+
+  const maxValue = Math.max(...dashboardData.sourceWise.map(s => s.amount));
+
+  const barData = dashboardData.sourceWise.map((item) => ({
+    label: item.source,
+    value: item.amount,
+  }));
 
   const navigateToEntry = (type: 'earning' | 'expense', defaultCategory?: string) => {
     if (type === 'earning') {
@@ -52,23 +103,9 @@ const AccountManagerDashboardScreen = () => {
       <CustomHeader title={t('accountManager.title', 'Account Manager')} icon="pie-chart" />
       <ScrollView style={styles.container}>
 
-        {/* Main Dashboard Card */}
+        {/* Balance Card */}
         <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('accountManager.monthlySummary', 'Monthly Summary')}</Text>
-
-          <View style={styles.summaryRow}>
-            <View style={styles.summaryItem}>
-              <Text style={[styles.summaryLabel, { color: colors.textLight }]}>{t('accountManager.aaya', 'Aaya (Income)')}</Text>
-              <Text style={[styles.summaryAmount, { color: colors.earning }]}>₹{dashboardData.monthlyTotal.aaya.toLocaleString()}</Text>
-            </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryItem}>
-              <Text style={[styles.summaryLabel, { color: colors.textLight }]}>{t('accountManager.kharcha', 'Kharcha (Expense)')}</Text>
-              <Text style={[styles.summaryAmount, { color: colors.expense }]}>₹{dashboardData.monthlyTotal.kharcha.toLocaleString()}</Text>
-            </View>
-          </View>
-
-          <View style={[styles.balanceContainer, { backgroundColor: colors.background }]}>
+          <View style={styles.balanceRow}>
             <Text style={[styles.balanceLabel, { color: colors.text }]}>{t('accountManager.balance', 'Balance')}</Text>
             <Text style={[styles.balanceAmount, { color: colors.primary }]}>₹{dashboardData.monthlyTotal.balance.toLocaleString()}</Text>
           </View>
@@ -85,7 +122,7 @@ const AccountManagerDashboardScreen = () => {
                 onPress={() => navigateToEntry(item.type as any, item.category)}
               >
                 <View style={[styles.iconWrapper, { backgroundColor: item.color + '20' }]}>
-                  <Icon name={item.icon} size={24} color={item.color} />
+                  <Icon name={item.icon} size={18} color={item.color} />
                 </View>
                 <Text style={[styles.quickEntryTitle, { color: colors.text }]} numberOfLines={2} textAlign="center">
                   {item.title}
@@ -95,9 +132,14 @@ const AccountManagerDashboardScreen = () => {
           </View>
         </View>
 
-        {/* Source-wise Totals */}
+        {/* Source-wise Horizontal Bar Chart */}
         <View style={styles.section}>
           <Text style={[styles.sectionHeading, { color: colors.text }]}>{t('accountManager.sourceWise', 'Source-wise Totals')}</Text>
+          <View style={[styles.chartCard, { backgroundColor: colors.surface }]}>
+            <HorizontalBarChart data={barData} maxValue={maxValue} colors={colors} />
+          </View>
+
+          {/* Source List */}
           <View style={[styles.sourceList, { backgroundColor: colors.surface }]}>
             {dashboardData.sourceWise.map((item, index) => (
               <View key={item.id} style={[styles.sourceItem, index < dashboardData.sourceWise.length - 1 && { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
@@ -112,13 +154,13 @@ const AccountManagerDashboardScreen = () => {
 
       </ScrollView>
 
-      {/* Primary Floating Action Buttons (Optional but helpful) */}
-      <View style={[styles.bottomActions, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 16) }]}>
+      {/* Bottom Action Buttons */}
+      <View style={[styles.bottomActions, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 12) }]}>
         <TouchableOpacity
           style={[styles.actionBtn, { backgroundColor: colors.earning }]}
           onPress={() => navigateToEntry('earning')}
         >
-          <Icon name="arrow-down-left" size={20} color="#FFF" style={styles.actionIcon} />
+          <Icon name="arrow-down-left" size={16} color="#FFF" style={styles.actionIcon} />
           <Text style={styles.actionBtnText}>{t('accountManager.addEarning', 'Add Earning')}</Text>
         </TouchableOpacity>
 
@@ -126,7 +168,7 @@ const AccountManagerDashboardScreen = () => {
           style={[styles.actionBtn, { backgroundColor: colors.expense }]}
           onPress={() => navigateToEntry('expense')}
         >
-          <Icon name="arrow-up-right" size={20} color="#FFF" style={styles.actionIcon} />
+          <Icon name="arrow-up-right" size={16} color="#FFF" style={styles.actionIcon} />
           <Text style={styles.actionBtnText}>{t('accountManager.addExpense', 'Add Expense')}</Text>
         </TouchableOpacity>
       </View>
@@ -140,140 +182,186 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 16,
+    padding: 12,
   },
   summaryCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 16,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  summaryItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  summaryDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#e5e7eb',
-    marginHorizontal: 16,
-  },
-  summaryLabel: {
-    fontSize: 13,
-    marginBottom: 6,
-    fontWeight: '500',
-  },
-  summaryAmount: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  balanceContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
     borderRadius: 12,
+    padding: 14,
+    marginBottom: 14,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   balanceLabel: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   },
   balanceAmount: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 14,
   },
   sectionHeading: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   quickEntryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: 8,
   },
   quickEntryCard: {
     width: '48%',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 10,
+    padding: 10,
     alignItems: 'center',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
   },
   iconWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   quickEntryTitle: {
-    fontSize: 13,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  chartCard: {
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 8,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+  },
+  barChartContainer: {
+    width: '100%',
+  },
+  barChartRow: {
+    flexDirection: 'row',
+    height: 140,
+  },
+  yAxis: {
+    width: 32,
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    paddingRight: 4,
+  },
+  yAxisLabel: {
+    fontSize: 8,
+    fontWeight: '500',
+  },
+  barsArea: {
+    flex: 1,
+    position: 'relative',
+  },
+  gridLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 1,
+    opacity: 0.3,
+  },
+  barsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    height: '100%',
+    paddingHorizontal: 4,
+  },
+  barColumn: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  barPercent: {
+    fontSize: 8,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  barTrack: {
+    width: 22,
+    height: '90%',
+    justifyContent: 'flex-end',
+    borderRadius: 4,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  barFill: {
+    width: '100%',
+    borderRadius: 4,
+  },
+  xAxis: {
+    flexDirection: 'row',
+    marginTop: 6,
+  },
+  xAxisItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  xAxisLabel: {
+    fontSize: 9,
     fontWeight: '600',
     textAlign: 'center',
   },
   sourceList: {
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: 'hidden',
   },
   sourceItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: 10,
   },
   sourceName: {
-    fontSize: 15,
+    fontSize: 12,
     fontWeight: '500',
   },
   sourceAmount: {
-    fontSize: 15,
+    fontSize: 12,
     fontWeight: '700',
   },
   bottomActions: {
     flexDirection: 'row',
-    padding: 16,
-    gap: 12,
+    padding: 10,
+    gap: 8,
     borderTopWidth: 1,
-    margin: 10
   },
   actionBtn: {
     flex: 1,
-    height: 48,
-    borderRadius: 24,
+    height: 40,
+    borderRadius: 20,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   actionIcon: {
-    marginRight: 8,
+    marginRight: 6,
   },
   actionBtnText: {
     color: '#FFF',
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '600',
   }
 });

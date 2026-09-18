@@ -74,23 +74,16 @@ const HomeScreen = () => {
         <View style={styles.headerLeft}>
           {isDark ? (
             <Image
-              source={require('../../logo_dark.png')}
+              source={require('../../dark-logo.jpeg')}
               style={styles.logoDark}
               resizeMode="contain"
             />
           ) : (
-            <>
-              <Image
-                source={require('../../logo_ganesh.png')}
-                style={styles.logoGanesh}
-                resizeMode="contain"
-              />
-              <Image
-                source={require('../../logo_text.png')}
-                style={styles.logoText}
-                resizeMode="contain"
-              />
-            </>
+            <Image
+              source={require('../../light-logo.jpeg')}
+              style={styles.logoLight}
+              resizeMode="contain"
+            />
           )}
         </View>
         <View style={styles.headerRight}>
@@ -121,8 +114,10 @@ const HomeScreen = () => {
       >
         {/* Greeting */}
         <View style={styles.greetingSection}>
-          <Text style={[styles.greetingSubtext, { color: colors.textLight }]}>Namaste,</Text>
-          <Text style={[styles.greetingText, { color: colors.text }]}>{user?.fullName || 'Pandit Ji'}</Text>
+          <View style={styles.greetingRow}>
+            <Text style={[styles.greetingSubtext, { color: colors.textLight }]}>Namaste,</Text>
+            <Text style={[styles.greetingText, { color: colors.text }]}>{user?.fullName || 'Pandit Ji'}</Text>
+          </View>
         </View>
 
         {/* Daily Spiritual Card */}
@@ -289,49 +284,44 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingHorizontal: 14,
+    paddingBottom: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingLeft: 0,
-    paddingRight: 16,
-    marginBottom: 4,
+    paddingVertical: 8,
+    paddingLeft: 14,
+    paddingRight: 14,
+    marginBottom: 2,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  logoGanesh: {
-    width: 50,
+  logoLight: {
+    width: 140,
     height: 50,
   },
-  logoText: {
-    width: 75,
-    height: 22,
-    marginLeft: 2,
-  },
   logoDark: {
-    width: 130,
-    height: 45,
+    width: 140,
+    height: 50,
   },
   appName: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
-    marginLeft: 8,
+    marginLeft: 6,
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   headerIconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -340,9 +330,9 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.06,
-        shadowRadius: 3,
+        shadowRadius: 2,
       },
-      android: { elevation: 2 },
+      android: { elevation: 1 },
     }),
   },
   profileBtn: {
@@ -354,46 +344,52 @@ const styles = StyleSheet.create({
     top: -3,
     right: -3,
     backgroundColor: '#DC2626',
-    width: 17,
-    height: 17,
-    borderRadius: 9,
+    width: 15,
+    height: 15,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: '#FFF',
   },
   badgeText: {
     color: '#FFF',
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: 'bold',
   },
   greetingSection: {
-    marginBottom: 16,
+    marginBottom: 10,
+    alignItems: 'flex-start',
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
   },
   greetingSubtext: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#6B7280',
     fontWeight: '400',
   },
   greetingText: {
-    fontSize: 26,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#1E293B',
   },
   spiritualCard: {
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 14,
     flexDirection: 'row',
     overflow: 'hidden',
     ...Platform.select({
       ios: {
         shadowColor: '#C75B12',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
       },
-      android: { elevation: 8 },
+      android: { elevation: 5 },
     }),
   },
   spiritualContent: {
@@ -404,67 +400,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.25)',
     alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginBottom: 12,
-    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginBottom: 8,
+    gap: 3,
   },
   spiritualTagText: {
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: '600',
     color: '#FFF',
   },
   quoteText: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#FFF',
-    lineHeight: 20,
+    lineHeight: 16,
     fontStyle: 'italic',
-    marginBottom: 12,
+    marginBottom: 8,
     opacity: 0.95,
   },
   mantraContainer: {
     backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 8,
+    padding: 8,
   },
   mantraDivider: {
     height: 1,
     backgroundColor: 'rgba(255,255,255,0.3)',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   mantraLabel: {
-    fontSize: 10,
+    fontSize: 8,
     color: 'rgba(255,255,255,0.7)',
     marginBottom: 2,
     fontWeight: '500',
   },
   mantraText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '700',
     color: '#FFF',
   },
   ganeshaImage: {
-    width: 100,
-    height: 120,
-    marginLeft: 8,
+    width: 70,
+    height: 85,
+    marginLeft: 6,
     opacity: 0.9,
     tintColor: '#FFF',
   },
   quickActionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
-    borderRadius: 16,
-    padding: 14,
+    marginBottom: 16,
+    borderRadius: 12,
+    padding: 10,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
       },
-      android: { elevation: 2 },
+      android: { elevation: 1 },
     }),
   },
   quickActionItem: {
@@ -472,104 +468,104 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     backgroundColor: '#FFF5EE',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 4,
     borderWidth: 1,
     borderColor: '#F3E8DB',
   },
   quickActionLabel: {
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: '600',
     color: '#1E293B',
   },
   serviceSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#1E293B',
   },
   exploreAllBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
   exploreAllText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
     color: '#C75B12',
   },
   serviceList: {
-    paddingRight: 8,
+    paddingRight: 6,
   },
   serviceCard: {
     width: (width - 60) / 2.2,
-    marginRight: 12,
-    borderRadius: 16,
+    marginRight: 10,
+    borderRadius: 12,
     overflow: 'hidden',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.12,
-        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
       },
-      android: { elevation: 4 },
+      android: { elevation: 3 },
     }),
   },
   serviceCardGradient: {
-    padding: 16,
-    borderRadius: 16,
+    padding: 12,
+    borderRadius: 12,
   },
   serviceIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     backgroundColor: 'rgba(255,255,255,0.25)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   serviceCardTitle: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#FFF',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   serviceCardSubtitle: {
-    fontSize: 11,
+    fontSize: 9,
     color: 'rgba(255,255,255,0.8)',
-    lineHeight: 15,
-    marginBottom: 10,
+    lineHeight: 13,
+    marginBottom: 8,
   },
   serviceArrow: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: 'rgba(255,255,255,0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-end',
   },
   poojaSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   poojaTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   viewAllBtn: {
     flexDirection: 'row',
@@ -577,124 +573,124 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   viewAllText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
     color: '#C75B12',
   },
   poojaCard: {
-    borderRadius: 16,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 10,
     borderWidth: 1,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
       },
-      android: { elevation: 2 },
+      android: { elevation: 1 },
     }),
   },
   poojaImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
+    width: 60,
+    height: 60,
+    borderRadius: 10,
   },
   poojaInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 10,
   },
   aajKaTag: {
     backgroundColor: '#FFF0E6',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
     alignSelf: 'flex-start',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   aajKaTagText: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: '700',
     color: '#C75B12',
   },
   poojaName: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#1E293B',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   poojaDetailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 2,
-    gap: 6,
+    marginBottom: 1,
+    gap: 4,
   },
   poojaDetailText: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#6B7280',
   },
   poojaArrowBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: '#FFF0E6',
     justifyContent: 'center',
     alignItems: 'center',
   },
   festivalSection: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   festivalCard: {
-    borderRadius: 16,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: 10,
     borderWidth: 1,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
       },
-      android: { elevation: 2 },
+      android: { elevation: 1 },
     }),
   },
   festivalIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     backgroundColor: '#FFF0E6',
     justifyContent: 'center',
     alignItems: 'center',
   },
   festivalInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 10,
   },
   festivalName: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '600',
     color: '#1E293B',
   },
   festivalDate: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#6B7280',
-    marginTop: 2,
+    marginTop: 1,
   },
   viewDetailsBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFF0E6',
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 14,
     gap: 2,
   },
   viewDetailsText: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
     color: '#C75B12',
   },

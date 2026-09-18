@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true,
@@ -19,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
       "package": "com.viprasathi.app"
     },
@@ -28,6 +28,9 @@
         "projectId": "3352aa5c-c7d4-4b31-9260-8f027b226b27"
       }
     },
-    "owner": "varunjain123"
+    "owner": "varunjain123",
+    "plugins": [
+      "expo-audio"
+    ]
   }
 }

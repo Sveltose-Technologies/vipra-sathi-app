@@ -93,14 +93,14 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
 
         <View style={styles.rightActions}>
           {showThemeToggle && (
-            <TouchableOpacity style={styles.iconBtn} onPress={toggleTheme}>
-              <Icon name={isDark ? 'sun' : 'moon'} size={18} color={iconColor} />
+            <TouchableOpacity style={[styles.iconBtn, { backgroundColor: isDark ? colors.surface : '#FFFFFF', borderColor: isDark ? colors.border : '#F3E8DB' }]} onPress={toggleTheme}>
+              <Icon name={isDark ? 'sun' : 'moon'} size={16} color={iconColor} />
             </TouchableOpacity>
           )}
 
           {isHome && (
-            <TouchableOpacity style={styles.iconBtn} onPress={onNotificationPress}>
-              <Icon name="bell" size={18} color={iconColor} />
+            <TouchableOpacity style={[styles.iconBtn, { backgroundColor: isDark ? colors.surface : '#FFFFFF', borderColor: isDark ? colors.border : '#F3E8DB' }]} onPress={onNotificationPress}>
+              <Icon name="bell" size={16} color={iconColor} />
               {notificationCount > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{notificationCount}</Text>
@@ -119,14 +119,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    minHeight: 50,
+    paddingHorizontal: 14,
+    minHeight: 44,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.04,
-        shadowRadius: 3,
+        shadowRadius: 2,
       },
       android: {
         elevation: 0,
@@ -162,18 +162,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 9,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 8,
   },
   icon: {
     marginRight: 10,
   },
   titleText: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
     flexShrink: 1,
   },
@@ -183,31 +183,29 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#F3E8DB',
   },
   badge: {
     position: 'absolute',
     top: -3,
     right: -3,
     backgroundColor: '#DC2626',
-    width: 17,
-    height: 17,
-    borderRadius: 9,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: '#FFF',
   },
   badgeText: {
     color: '#FFF',
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: 'bold',
   },
 });
