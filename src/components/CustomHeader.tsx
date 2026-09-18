@@ -60,8 +60,13 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
         {isHome ? (
           <View style={styles.logoContainer}>
             <Image
-              source={require('../../logo.png')}
-              style={styles.logoImage}
+              source={require('../../logo_ganesh.png')}
+              style={styles.logoGanesh}
+              resizeMode="contain"
+            />
+            <Image
+              source={require('../../logo_text.png')}
+              style={styles.logoText}
               resizeMode="contain"
             />
           </View>
@@ -132,9 +137,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  logoImage: {
-    width: 140,
-    height: 48,
+  logoGanesh: {
+    width: 50,
+    height: 50,
+  },
+  logoText: {
+    width: 75,
+    height: 22,
+    marginLeft: 2,
   },
   titleContainer: {
     flexDirection: 'row',

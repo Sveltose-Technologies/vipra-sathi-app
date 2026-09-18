@@ -73,8 +73,13 @@ const HomeScreen = () => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Image
-            source={require('../../logo.png')}
-            style={styles.logo}
+            source={require('../../logo_ganesh.png')}
+            style={styles.logoGanesh}
+            resizeMode="contain"
+          />
+          <Image
+            source={require('../../logo_text.png')}
+            style={styles.logoText}
             resizeMode="contain"
           />
         </View>
@@ -290,10 +295,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  logo: {
-    width: 140,
-    height: 48,
-    marginLeft: -24,
+  logoGanesh: {
+    width: 50,
+    height: 50,
+  },
+  logoText: {
+    width: 75,
+    height: 22,
+    marginLeft: 2,
+  },
+  appName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
   headerRight: {
     flexDirection: 'row',
