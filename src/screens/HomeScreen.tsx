@@ -72,16 +72,26 @@ const HomeScreen = () => {
       {/* Header - outside ScrollView to avoid content padding */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Image
-            source={require('../../logo_ganesh.png')}
-            style={styles.logoGanesh}
-            resizeMode="contain"
-          />
-          <Image
-            source={require('../../logo_text.png')}
-            style={styles.logoText}
-            resizeMode="contain"
-          />
+          {isDark ? (
+            <Image
+              source={require('../../logo_dark.png')}
+              style={styles.logoDark}
+              resizeMode="contain"
+            />
+          ) : (
+            <>
+              <Image
+                source={require('../../logo_ganesh.png')}
+                style={styles.logoGanesh}
+                resizeMode="contain"
+              />
+              <Image
+                source={require('../../logo_text.png')}
+                style={styles.logoText}
+                resizeMode="contain"
+              />
+            </>
+          )}
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity style={[styles.headerIconBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={toggleTheme}>
@@ -303,6 +313,10 @@ const styles = StyleSheet.create({
     width: 75,
     height: 22,
     marginLeft: 2,
+  },
+  logoDark: {
+    width: 130,
+    height: 45,
   },
   appName: {
     fontSize: 18,
