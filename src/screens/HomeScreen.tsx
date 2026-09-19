@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 14,
-    paddingBottom: 16,
+    paddingBottom: 80,
   },
   header: {
     flexDirection: 'row',
@@ -524,10 +524,12 @@ const styles = StyleSheet.create({
       },
       android: { elevation: 3 },
     }),
+    minHeight: 130,
   },
   serviceCardGradient: {
     padding: 12,
     borderRadius: 12,
+    flex: 1,
   },
   serviceIconContainer: {
     width: 36,
@@ -558,6 +560,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-end',
+    marginTop: 'auto',
   },
   poojaSection: {
     marginBottom: 16,

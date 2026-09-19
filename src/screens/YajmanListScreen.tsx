@@ -78,12 +78,20 @@ const YajmanListScreen = () => {
           </View>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('YajmanForm', { yajman: item })}
-            style={{ padding: 4, marginBottom: 4 }}
-          >
-            <Icon name="edit-2" size={18} color={colors.textLight} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 12, marginBottom: 6 }}>
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('YajmanForm', { yajman: item })}
+              style={{ padding: 4 }}
+            >
+              <Icon name="edit-2" size={18} color={colors.textLight} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setYajmanToDelete(item)}
+              style={{ padding: 4 }}
+            >
+              <Icon name="trash-2" size={18} color="#ef4444" />
+            </TouchableOpacity>
+          </View>
           <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(item.category) + '20' }]}>
             <Text style={[styles.categoryText, { color: getCategoryColor(item.category) }]}>{item.category}</Text>
           </View>

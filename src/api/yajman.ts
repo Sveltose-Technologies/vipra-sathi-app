@@ -12,7 +12,7 @@ export interface YajmanApiPayload {
   city?: string;
   state?: string;
   address?: string;
-  categoryId?: string; 
+  categoryId?: string[]; 
   date?: string; // kycDate
   remark?: string;
 }

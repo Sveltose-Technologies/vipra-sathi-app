@@ -6,7 +6,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { AuthProvider } from './src/context/AuthContext';
@@ -28,12 +28,12 @@ const asyncStoragePersister = createAsyncStoragePersister({
 const ThemedApp = () => {
   const { colors, isDark } = useTheme();
   return (
-    <View style={{ flex: 1, backgroundColor: colors.notch }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.notch }} edges={['bottom', 'left', 'right']}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.notch} />
       <NavigationContainer>
         <AppNavigator />
       </NavigationContainer>
-    </View>
+    </SafeAreaView>
   );
 };
 

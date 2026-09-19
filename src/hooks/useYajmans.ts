@@ -23,8 +23,12 @@ export const useYajmans = () => {
     city: item.city,
     state: item.state,
     address: item.address,
-    category: item.categoryId?.name || item.category || 'Karmkand',
-    categoryId: item.categoryId?._id || item.categoryId,
+    category: Array.isArray(item.categoryId)
+      ? item.categoryId.map((c: any) => c?.categoryName || c?.name || '').filter(Boolean).join(', ')
+      : (item.categoryId?.categoryName || item.categoryId?.name || item.category || 'Karmkand'),
+    categoryId: Array.isArray(item.categoryId)
+      ? item.categoryId.map((c: any) => c?._id || c)
+      : (item.categoryId?._id ? [item.categoryId._id] : (item.categoryId ? [item.categoryId] : [])),
     kycDate: item.date || new Date().toISOString(),
     remark: item.remark,
     createdAt: item.createdAt ? new Date(item.createdAt).getTime() : Date.now(),

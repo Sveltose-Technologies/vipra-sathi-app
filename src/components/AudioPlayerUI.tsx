@@ -31,7 +31,7 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({ title, audioUrl }) => {
   }, [isRepeat, player]);
 
   useEffect(() => {
-    player.playbackRate = isSlowMode ? 0.75 : 1.0;
+    player.setPlaybackRate(isSlowMode ? 0.75 : 1.0);
   }, [isSlowMode, player]);
 
   useEffect(() => {

@@ -122,9 +122,9 @@ const AccountManagerDashboardScreen = () => {
                 onPress={() => navigateToEntry(item.type as any, item.category)}
               >
                 <View style={[styles.iconWrapper, { backgroundColor: item.color + '20' }]}>
-                  <Icon name={item.icon} size={18} color={item.color} />
+                  <Icon name={item.icon as any} size={18} color={item.color} />
                 </View>
-                <Text style={[styles.quickEntryTitle, { color: colors.text }]} numberOfLines={2} textAlign="center">
+                <Text style={[styles.quickEntryTitle, { color: colors.text, textAlign: 'center' }]} numberOfLines={2}>
                   {item.title}
                 </Text>
               </TouchableOpacity>
@@ -152,10 +152,20 @@ const AccountManagerDashboardScreen = () => {
           </View>
         </View>
 
+        {/* View History Button */}
+        <TouchableOpacity
+          style={[styles.historyBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          onPress={() => navigation.navigate('AccountHistory')}
+        >
+          <Icon name="clock" size={18} color={colors.primary} />
+          <Text style={[styles.historyBtnText, { color: colors.primary }]}>{t('accountManager.viewHistory', 'View Full History')}</Text>
+          <Icon name="chevron-right" size={18} color={colors.primary} />
+        </TouchableOpacity>
+
       </ScrollView>
 
       {/* Bottom Action Buttons */}
-      <View style={[styles.bottomActions, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 12) }]}>
+      <View style={[styles.bottomActions, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
         <TouchableOpacity
           style={[styles.actionBtn, { backgroundColor: colors.earning }]}
           onPress={() => navigateToEntry('earning')}
@@ -204,7 +214,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   balanceAmount: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   section: {
@@ -342,10 +352,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
+  historyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: 8,
+    marginBottom: 16,
+    gap: 8,
+  },
+  historyBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
   bottomActions: {
     flexDirection: 'row',
     padding: 10,
-    gap: 8,
+    gap: 10,
     borderTopWidth: 1,
   },
   actionBtn: {

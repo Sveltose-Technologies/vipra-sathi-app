@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../theme/ThemeContext';
@@ -305,6 +305,10 @@ const KundaliGeneratedScreen = () => {
   const { colors } = useTheme();
   const { name, dob, tob, place } = route.params;
 
+  const { width: windowWidth } = Dimensions.get('window');
+  // Dynamic size: screen width minus padding (e.g. 64 = 32px on each side), max 360.
+  const chartSize = Math.min(windowWidth - 24, 360);
+
   const [selectedChart, setSelectedChart] = useState('Lagna (D1)');
   const [activeTab, setActiveTab] = useState<'kundli' | 'dasha' | 'panchang'>('kundli');
   const isDashas = selectedChart === 'Dashas';
@@ -360,7 +364,7 @@ const KundaliGeneratedScreen = () => {
 
               {!isDashas && chartKey && MOCK_CHARTS[chartKey] ? (
                 <View style={styles.chartWrapper}>
-                  <VedicChart planets={MOCK_CHARTS[chartKey]} size={360} showAsc={chartKey === 'Lagna'} />
+                  <VedicChart planets={MOCK_CHARTS[chartKey]} size={chartSize} showAsc={chartKey === 'Lagna'} />
                 </View>
               ) : (
                 <View style={styles.dashasContainer}>
@@ -396,7 +400,7 @@ const KundaliGeneratedScreen = () => {
           </>
         ) : (
           <View style={styles.underConstruction}>
-            <Icon name="construction" size={40} color={colors.textLight} />
+            <Icon name="tool" size={40} color={colors.textLight} />
             <Text style={[styles.underConstructionText, { color: colors.textLight }]}>
               {activeTab === 'dasha' ? 'Dasha' : 'Panchang'} Feature Under Construction
             </Text>
