@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../theme/ThemeContext';
 import { Feather as Icon } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import CustomHeader from '../components/CustomHeader';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -13,85 +14,153 @@ const LibraryHubScreen = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp>();
 
-  const renderCard = (title: string, description: string, icon: string, route: keyof RootStackParamList) => (
-    <TouchableOpacity 
-      style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
+  const renderFullCard = (
+    title: string,
+    desc: string,
+    icon: string,
+    route: keyof RootStackParamList,
+    gradient: [string, string],
+    iconColor: string
+  ) => (
+    <TouchableOpacity
+      activeOpacity={0.9}
       onPress={() => navigation.navigate(route as any)}
+      style={styles.fullCardWrapper}
     >
-      <View style={[styles.iconContainer, { backgroundColor: colors.primary + '15' }]}>
-        <Icon name={icon} size={22} color={colors.primary} />
-      </View>
-      <View style={styles.textContainer}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>{title}</Text>
-        <Text style={[styles.cardDesc, { color: colors.textLight }]}>{description}</Text>
-      </View>
-      <Icon name="chevron-right" size={24} color={colors.textLight} />
+      <LinearGradient
+        colors={gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.fullCard}
+      >
+        <Icon name={icon as any} size={60} color="rgba(255,255,255,0.15)" style={styles.cardBgIcon} />
+        <View style={styles.cardHeaderRow}>
+          <View style={styles.iconCircle}>
+            <Icon name={icon as any} size={18} color={iconColor} />
+          </View>
+          <View style={styles.arrowCircle}>
+            <Icon name="arrow-right" size={14} color="#FFF" />
+          </View>
+        </View>
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardDesc}>{desc}</Text>
+      </LinearGradient>
     </TouchableOpacity>
   );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <CustomHeader title="Pooja" icon="book-open" showThemeToggle={true} />
-      <View style={styles.header}>
-        <Text style={[styles.headerSubtitle, { color: colors.textLight }]}>
-          Access all your spiritual resources
-        </Text>
-      </View>
+      <CustomHeader title="Spiritual Hub" icon="book-open" showThemeToggle={true} />
 
-      <View style={styles.content}>
-        {renderCard(
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+        {renderFullCard(
           'Pooja Library',
-          'Detailed rituals, samagri, and dynamic mantras',
+          'Detailed rituals, samagri lists, and dynamic mantras for every auspicious occasion.',
           'book-open',
-          'PoojaLibrary'
+          'PoojaLibrary',
+          ['#C75B12', '#E8944A'],
+          '#C75B12'
         )}
-        {renderCard(
+
+        {renderFullCard(
           'Stotram',
-          'Collection of powerful stotras with audio support',
+          'A rich collection of powerful stotras with audio support for daily recitation.',
           'music',
-          'StotramLibrary'
+          'StotramLibrary',
+          ['#16A34A', '#4ADE80'],
+          '#16A34A'
         )}
-        {renderCard(
+
+        {renderFullCard(
           'Aarti',
-          'Beautifully organized aartis with deity images',
+          'Beautifully organized aartis with high-quality deity images and lyrics.',
           'sun',
-          'AartiLibrary'
+          'AartiLibrary',
+          ['#7C3AED', '#A78BFA'],
+          '#7C3AED'
         )}
-      </View>
+
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { padding: 14, paddingTop: 20 },
-  headerTitle: { fontSize: 15, fontWeight: 'bold', marginBottom: 2 },
-  headerSubtitle: { fontSize: 13 },
-  content: { padding: 12 },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 10,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
+  container: {
+    flex: 1,
   },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  content: {
+    padding: 16,
+    paddingBottom: 90,
+  },
+  fullCardWrapper: {
+    marginBottom: 12,
+    borderRadius: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+      },
+      android: { elevation: 5 },
+    }),
+  },
+  fullCard: {
+    borderRadius: 16,
+    padding: 16,
+    overflow: 'hidden',
+    minHeight: 170,
+    justifyContent: 'space-between',
+  },
+  cardBgIcon: {
+    position: 'absolute',
+    right: -10,
+    bottom: -15,
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: { elevation: 2 },
+    }),
   },
-  textContainer: { flex: 1 },
-  cardTitle: { fontSize: 14, fontWeight: 'bold', marginBottom: 2 },
-  cardDesc: { fontSize: 11, lineHeight: 15 },
+  arrowCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  cardDesc: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.9)',
+    lineHeight: 16,
+  },
 });
 
 export default LibraryHubScreen;

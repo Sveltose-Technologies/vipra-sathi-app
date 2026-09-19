@@ -18,7 +18,7 @@ export interface Yajman {
   state?: string;
   address?: string;
   category: string;
-  categoryId?: string;
+  categoryId?: string[];
   kycDate: string; // ISO Date string YYYY-MM-DD
   remark?: string;
   createdAt: number;

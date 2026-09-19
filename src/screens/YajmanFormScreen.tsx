@@ -9,7 +9,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useYajmans } from '../hooks/useYajmans';
 import { YajmanCategory } from '../types/yajman';
-import CustomDropdown from '../components/CustomDropdown';
+import CustomMultiSelectDropdown from '../components/CustomMultiSelectDropdown';
 import { yajmanApi } from '../api/yajman';
 
 type FormRouteProp = RouteProp<RootStackParamList, 'YajmanForm'>;
@@ -54,7 +54,7 @@ const YajmanFormScreen = () => {
     state: existingYajman?.state || '',
     address: existingYajman?.address || '',
     category: existingYajman?.category || 'Karmkand',
-    categoryId: existingYajman?.categoryId || '',
+    categoryId: existingYajman?.categoryId || [],
     yearlyProgramName: existingYajman?.yearlyProgramName || '',
     remark: existingYajman?.remark || '',
   });
@@ -131,7 +131,7 @@ const YajmanFormScreen = () => {
         ]}
         placeholder={placeholder}
         placeholderTextColor={colors.textLight}
-        value={formData[field]}
+        value={formData[field] as string}
         onChangeText={(text) => {
           setFormData({ ...formData, [field]: text });
           if (errors[field]) setErrors({ ...errors, [field]: '' });
@@ -180,16 +180,20 @@ const YajmanFormScreen = () => {
           <Text style={[styles.sectionTitle, { color: colors.primary }]}>Personal Details</Text>
           {renderInput('name', 'Full Name', 'Enter yajman name')}
 
-          <CustomDropdown
+          <CustomMultiSelectDropdown
             label="Category"
-            value={formData.category}
+            values={formData.category ? formData.category.split(',').map(s => s.trim()).filter(Boolean) : []}
             options={categories.length > 0 ? categories.map(c => c.categoryName) : ['Karmkand', 'Astrology', 'Others']}
-            onSelect={(val) => {
-              const matched = categories.find(c => c.categoryName === val);
+            onSelect={(vals: string[]) => {
+              const matchedIds = vals.map(val => {
+                const matched = categories.find(c => c.categoryName === val);
+                return matched ? matched._id : '';
+              }).filter(Boolean);
+              
               setFormData({ 
                 ...formData, 
-                category: val,
-                categoryId: matched ? matched._id : ''
+                category: vals.join(', '),
+                categoryId: matchedIds
               });
             }}
           />

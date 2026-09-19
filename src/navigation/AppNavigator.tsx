@@ -44,6 +44,7 @@ import YajmanFormScreen from '../screens/YajmanFormScreen';
 import YajmanDetailScreen from '../screens/YajmanDetailScreen';
 import { Yajman } from '../types/yajman';
 import AccountManagerDashboardScreen from '../screens/AccountManagerDashboardScreen';
+import AccountHistoryScreen from '../screens/AccountHistoryScreen';
 import EarningEntryScreen from '../screens/EarningEntryScreen';
 import ExpenseEntryScreen from '../screens/ExpenseEntryScreen';
 
@@ -81,6 +82,7 @@ export type RootStackParamList = {
   YajmanForm: { yajman?: Yajman }; // Optional for edit mode
   YajmanDetail: { yajman: Yajman };
   AccountManagerDashboard: undefined;
+  AccountHistory: undefined;
   EarningEntry: { defaultCategory?: string };
   ExpenseEntry: { defaultCategory?: string };
 };
@@ -128,7 +130,7 @@ const MainTabNavigator = () => {
           else if (route.name === 'DakshinaCalculator') iconName = focused ? 'calculator' : 'calculator-outline';
           else if (route.name === 'Menu') iconName = focused ? 'menu' : 'menu-outline';
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return <Icon name={iconName as any} size={size} color={color} />;
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textLight,
@@ -136,9 +138,9 @@ const MainTabNavigator = () => {
           backgroundColor: colors.surface,
           borderTopColor: 'transparent',
           borderTopWidth: 0,
-          paddingBottom: Math.max(insets.bottom, 8),
+          paddingBottom: 8,
           paddingTop: 8,
-          height: 62 + Math.max(insets.bottom, 0),
+          height: 62,
           elevation: 12,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
@@ -208,6 +210,7 @@ const AppNavigator = () => {
           <Stack.Screen name="YajmanForm" component={YajmanFormScreen} options={{ presentation: 'modal' }} />
           <Stack.Screen name="YajmanDetail" component={YajmanDetailScreen} />
           <Stack.Screen name="AccountManagerDashboard" component={AccountManagerDashboardScreen} />
+          <Stack.Screen name="AccountHistory" component={AccountHistoryScreen} />
           <Stack.Screen name="EarningEntry" component={EarningEntryScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
           <Stack.Screen name="ExpenseEntry" component={ExpenseEntryScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
         </>

@@ -84,7 +84,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
             )}
             {icon && !showBack && (
               <View style={[styles.headerIconCircle, { backgroundColor: colors.primary + '15' }]}>
-                <Icon name={icon} size={20} color={colors.primary} />
+                <Icon name={icon as any} size={20} color={colors.primary} />
               </View>
             )}
             <Text style={[styles.titleText, { color: textColor }]} numberOfLines={1} ellipsizeMode="tail">{title}</Text>
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   titleText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 'bold',
     flexShrink: 1,
   },
